@@ -216,7 +216,7 @@ export default function Home() {
                   {formData.description && (
                     <div>
                       <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Description</p>
-                      <p className="text-on-surface-variant text-sm italic">"{formData.description}"</p>
+                      <p className="text-on-surface-variant text-sm italic">&quot;{formData.description}&quot;</p>
                     </div>
                   )}
                 </div>
