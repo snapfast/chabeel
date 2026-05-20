@@ -1,0 +1,17 @@
+[
+  {
+    "id": "1",
+    "name": "Test Chabeel",
+    "lat": 30.7,
+    "lng": 76.7,
+    "createdAt": "2026-05-20T08:40:13.807Z"
+  },
+  {
+    "id": "2704861f-efd9-44fc-85a0-12b688392647",
+    "name": "Verification Chabeel",
+    "description": "Automated verification test",
+    "lat": 30.733858919448956,
+    "lng": 76.7223358154297,
+    "createdAt": "2026-05-20T08:41:24.970Z"
+  }
+]
