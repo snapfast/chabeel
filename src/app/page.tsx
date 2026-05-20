@@ -3,7 +3,6 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useMemo } from 'react';
 import { ChabeelLocation } from '@/types';
-import type { LatLngBounds } from 'leaflet';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -29,10 +28,10 @@ export default function Home() {
     }
   };
 
-  const filteredLocations = useMemo(() => {
+  const filteredLocations = useMemo<ChabeelLocation[]>(() => {
     return locations.map((loc, i) => ({
       ...loc,
-      status: i % 3 === 0 ? 'active' : i % 3 === 1 ? 'upcoming' : 'ended' as const,
+      status: (i % 3 === 0 ? 'active' : i % 3 === 1 ? 'upcoming' : 'ended') as 'active' | 'upcoming' | 'ended',
     }));
   }, [locations]);
 
