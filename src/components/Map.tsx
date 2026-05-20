@@ -138,8 +138,11 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
                   )}
                   <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
                   {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
-                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
+                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
+                    <div className="flex items-center justify-between opacity-60 italic">
+                      <span>Public • Crowd Sourced</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-outline-variant/10 pt-1">
                       <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
                     </div>
                     {onDelete && (

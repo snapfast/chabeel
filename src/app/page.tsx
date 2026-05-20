@@ -95,6 +95,20 @@ export default function Home() {
           onDelete={handleDelete}
         />
 
+        {/* Branding Tile */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
+          <div className="bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full border border-outline-variant/30 shadow-sm flex items-center gap-2">
+            <span className="text-[10px] font-bold text-on-surface/70 tracking-tight">Chabeel Finder</span>
+            <div className="w-[1px] h-2.5 bg-outline-variant/30"></div>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+              <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Crowd Sourced</span>
+            </div>
+            <div className="w-[1px] h-2.5 bg-outline-variant/30"></div>
+            <span className="text-[9px] text-outline font-medium">Share Food • Public</span>
+          </div>
+        </div>
+
         {/* Floating Footer for Desktop Map View */}
         <div className="hidden md:block absolute bottom-sm right-sm z-[1000]">
           <div className="bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/30 text-outline text-[12px] flex gap-4 shadow-sm">
