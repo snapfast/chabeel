@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect, useMemo } from 'react';
 import { ChabeelLocation } from '@/types';
 import { Loader2 } from 'lucide-react';
+import type { LatLngBounds } from 'leaflet';
 
 const Map = dynamic(() => import('@/components/Map'), {
   ssr: false,
@@ -13,7 +14,8 @@ const Map = dynamic(() => import('@/components/Map'), {
 export default function Home() {
   const [locations, setLocations] = useState<ChabeelLocation[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [formData, setFormData] = useState({ name: '', description: '', lat: 0, lng: 0 });
+  const [formData, setFormData] = useState({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
+  const [mapBounds, setMapBounds] = useState<LatLngBounds | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
@@ -67,9 +69,27 @@ export default function Home() {
     return result;
   }, [locations, searchQuery, filter]);
 
-  const handleMapClick = (lat: number, lng: number) => {
-    setFormData({ ...formData, lat, lng });
+  const visibleLocations = useMemo(() => {
+    if (!mapBounds) return filteredLocations;
+    return filteredLocations.filter(loc => mapBounds.contains([loc.lat, loc.lng]));
+  }, [filteredLocations, mapBounds]);
+
+  const handleMapClick = async (lat: number, lng: number) => {
+    setFormData({ ...formData, lat, lng, locationName: 'Fetching address...' });
     setShowAddForm(true);
+
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, {
+        headers: {
+          'User-Agent': 'ChabeelFinder/1.0'
+        }
+      });
+      const data = await response.json();
+      setFormData(prev => ({ ...prev, lat, lng, locationName: data.display_name || '' }));
+    } catch (error) {
+      console.error('Failed to fetch address', error);
+      setFormData(prev => ({ ...prev, lat, lng, locationName: '' }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +102,7 @@ export default function Home() {
       });
       if (res.ok) {
         setShowAddForm(false);
-        setFormData({ name: '', description: '', lat: 0, lng: 0 });
+        setFormData({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
         fetchLocations();
       }
     } catch (error) {
@@ -142,12 +162,12 @@ export default function Home() {
               <Loader2 className="animate-spin text-primary" size={32} />
               <p className="text-on-surface-variant font-label-sm">Loading locations...</p>
             </div>
-          ) : filteredLocations.length === 0 ? (
+          ) : visibleLocations.length === 0 ? (
             <div className="text-center py-10">
-              <p className="text-outline font-body-md">No locations found</p>
+              <p className="text-outline font-body-md">No locations found in this area</p>
             </div>
           ) : (
-            filteredLocations.map((loc) => (
+            visibleLocations.map((loc) => (
               <div key={loc.id} className={`bg-surface rounded-xl p-sm border border-outline-variant/20 shadow-sm hover:shadow-[0_10px_30px_rgba(0,119,255,0.08)] hover:border-primary/30 cursor-pointer transition-all group ${loc.status === 'ended' ? 'opacity-60 cursor-not-allowed' : loc.status === 'upcoming' ? 'opacity-80' : ''}`}>
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -201,7 +221,7 @@ export default function Home() {
 
       {/* Map Area */}
       <div className="flex-1 relative">
-        <Map locations={filteredLocations} onMapClick={handleMapClick} />
+        <Map locations={filteredLocations} onMapClick={handleMapClick} onBoundsChange={setMapBounds} />
 
         {/* Floating Footer for Desktop Map View */}
         <div className="hidden md:block absolute bottom-sm right-sm z-[1000]">
@@ -228,7 +248,7 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-on-surface-variant mb-1">Name / Location Name</label>
+              <label className="block text-sm font-medium text-on-surface-variant mb-1">Suggestive Chabeel Name</label>
               <input
                 required
                 type="text"
@@ -236,6 +256,28 @@ export default function Home() {
                 className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-on-surface-variant mb-1">Location Address</label>
+              <input
+                required
+                type="text"
+                placeholder="Address"
+                className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                value={formData.locationName}
+                onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-on-surface-variant mb-1">Timing / Duration (Days)</label>
+              <input
+                required
+                type="number"
+                min="1"
+                className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                value={formData.durationDays}
+                onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
               />
             </div>
             <div>

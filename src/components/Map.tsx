@@ -44,14 +44,32 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
+  onBoundsChange?: (bounds: L.LatLngBounds) => void;
 }
 
-function ClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
+function MapEvents({ onMapClick, onBoundsChange }: { onMapClick: (lat: number, lng: number) => void, onBoundsChange?: (bounds: L.LatLngBounds) => void }) {
+  const map = useMapEvents({
     click(e) {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
+    moveend() {
+      if (onBoundsChange) {
+        onBoundsChange(map.getBounds());
+      }
+    },
+    zoomend() {
+      if (onBoundsChange) {
+        onBoundsChange(map.getBounds());
+      }
+    }
   });
+
+  useEffect(() => {
+    if (onBoundsChange) {
+      onBoundsChange(map.getBounds());
+    }
+  }, []);
+
   return null;
 }
 
@@ -63,7 +81,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick }: MapProps) {
+export default function Map({ locations, onMapClick, onBoundsChange }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
@@ -152,7 +170,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
           </Marker>
         )}
 
-        <ClickHandler onMapClick={onMapClick} />
+        <MapEvents onMapClick={onMapClick} onBoundsChange={onBoundsChange} />
         <MapUpdater center={center} />
       </MapContainer>
 
