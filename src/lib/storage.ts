@@ -45,3 +45,19 @@ export async function saveLocation(location: ChabeelLocation): Promise<void> {
 
   return writeLock;
 }
+
+export async function deleteLocation(id: string): Promise<void> {
+  writeLock = writeLock.catch(() => {}).then(async () => {
+    try {
+      const data = await fs.readFile(DATA_FILE, 'utf8');
+      const locations: ChabeelLocation[] = JSON.parse(data);
+      const filteredLocations = locations.filter(loc => loc.id !== id);
+      await fs.writeFile(DATA_FILE, JSON.stringify(filteredLocations, null, 2));
+    } catch (error) {
+      console.error('Error deleting location:', error);
+      throw error;
+    }
+  });
+
+  return writeLock;
+}

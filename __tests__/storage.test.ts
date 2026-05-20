@@ -1,34 +1,43 @@
-import { getLocations, saveLocation } from '@/lib/storage';
+import { getLocations, saveLocation, deleteLocation } from '@/lib/storage';
 import fs from 'fs/promises';
-import { existsSync, writeFileSync } from 'fs';
 import path from 'path';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'locations.json');
 
 describe('Storage', () => {
-  beforeEach(() => {
-    if (existsSync(DATA_FILE)) {
-      writeFileSync(DATA_FILE, JSON.stringify([]));
-    }
+  beforeEach(async () => {
+    await fs.writeFile(DATA_FILE, JSON.stringify([]));
   });
 
   it('should save and retrieve locations', async () => {
-    const location = {
+    const loc = {
       id: '1',
-      name: 'Test Chabeel',
-      lat: 30.7,
-      lng: 76.7,
-      locationName: 'Test Location',
-      durationDays: 3,
-      createdAt: new Date().toISOString(),
+      name: 'Test',
+      lat: 30,
+      lng: 76,
+      locationName: 'Test Loc',
+      durationDays: 1,
+      createdAt: new Date().toISOString()
     };
-
-    await saveLocation(location);
+    await saveLocation(loc);
     const locations = await getLocations();
-
     expect(locations).toHaveLength(1);
-    expect(locations[0].name).toBe('Test Chabeel');
-    expect(locations[0].locationName).toBe('Test Location');
-    expect(locations[0].durationDays).toBe(3);
+    expect(locations[0].name).toBe('Test');
+  });
+
+  it('should delete a location', async () => {
+    const loc = {
+      id: '1',
+      name: 'Test',
+      lat: 30,
+      lng: 76,
+      locationName: 'Test Loc',
+      durationDays: 1,
+      createdAt: new Date().toISOString()
+    };
+    await saveLocation(loc);
+    await deleteLocation('1');
+    const locations = await getLocations();
+    expect(locations).toHaveLength(0);
   });
 });

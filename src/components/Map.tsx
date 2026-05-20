@@ -44,31 +44,15 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
-  onBoundsChange?: (bounds: L.LatLngBounds) => void;
+  onDelete?: (id: string) => void;
 }
 
-function MapEvents({ onMapClick, onBoundsChange }: { onMapClick: (lat: number, lng: number) => void, onBoundsChange?: (bounds: L.LatLngBounds) => void }) {
-  const map = useMapEvents({
+function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+  useMapEvents({
     click(e) {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
-    moveend() {
-      if (onBoundsChange) {
-        onBoundsChange(map.getBounds());
-      }
-    },
-    zoomend() {
-      if (onBoundsChange) {
-        onBoundsChange(map.getBounds());
-      }
-    }
   });
-
-  useEffect(() => {
-    if (onBoundsChange) {
-      onBoundsChange(map.getBounds());
-    }
-  }, []);
 
   return null;
 }
@@ -81,7 +65,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick, onBoundsChange }: MapProps) {
+export default function Map({ locations, onMapClick, onDelete }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
@@ -154,9 +138,18 @@ export default function Map({ locations, onMapClick, onBoundsChange }: MapProps)
                   )}
                   <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
                   {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
-                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex items-center justify-between">
-                    <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
-                    <span className="text-primary font-bold">Details &rarr;</span>
+                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(loc.id)}
+                        className="text-error font-bold hover:underline self-end"
+                      >
+                        Delete Chabeel
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -170,7 +163,7 @@ export default function Map({ locations, onMapClick, onBoundsChange }: MapProps)
           </Marker>
         )}
 
-        <MapEvents onMapClick={onMapClick} onBoundsChange={onBoundsChange} />
+        <MapEvents onMapClick={onMapClick} />
         <MapUpdater center={center} />
       </MapContainer>
 
