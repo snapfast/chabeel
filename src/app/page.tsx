@@ -12,6 +12,7 @@ const Map = dynamic(() => import('@/components/Map'), {
 export default function Home() {
   const [locations, setLocations] = useState<ChabeelLocation[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
 
   useEffect(() => {
@@ -53,8 +54,12 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowConfirm(true);
+  };
+
+  const saveLocation = async () => {
     try {
       const res = await fetch('/api/locations', {
         method: 'POST',
@@ -62,12 +67,14 @@ export default function Home() {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
+        setShowConfirm(false);
         setShowAddForm(false);
         setFormData({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
         fetchLocations();
       }
     } catch (error) {
       console.error('Failed to save location', error);
+      alert('Failed to save location. Please try again.');
     }
   };
 
@@ -120,8 +127,9 @@ export default function Home() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-on-surface-variant mb-1">Suggestive Chabeel Name</label>
+              <label htmlFor="chabeel-name" className="block text-sm font-medium text-on-surface-variant mb-1">Suggestive Chabeel Name</label>
               <input
+                id="chabeel-name"
                 required
                 type="text"
                 placeholder="e.g. Gurudwara Sector 34 Chabeel"
@@ -131,8 +139,9 @@ export default function Home() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-on-surface-variant mb-1">Location Address</label>
+              <label htmlFor="chabeel-address" className="block text-sm font-medium text-on-surface-variant mb-1">Location Address</label>
               <input
+                id="chabeel-address"
                 required
                 type="text"
                 placeholder="Address"
@@ -142,8 +151,9 @@ export default function Home() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-on-surface-variant mb-1">Timing / Duration (Days)</label>
+              <label htmlFor="chabeel-duration" className="block text-sm font-medium text-on-surface-variant mb-1">Timing / Duration (Days)</label>
               <input
+                id="chabeel-duration"
                 required
                 type="number"
                 min="1"
@@ -153,8 +163,9 @@ export default function Home() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-on-surface-variant mb-1">Description (Optional)</label>
+              <label htmlFor="chabeel-desc" className="block text-sm font-medium text-on-surface-variant mb-1">Description (Optional)</label>
               <textarea
+                id="chabeel-desc"
                 placeholder="What time? Any specifics?"
                 className="w-full p-2 border border-outline-variant rounded-md h-32 focus:ring-2 focus:ring-primary outline-none"
                 value={formData.description}
@@ -172,6 +183,62 @@ export default function Home() {
               Save Public Location
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Confirmation Popup */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-8">
+              <h3 className="text-xl font-bold text-on-surface mb-4">Confirm Chabeel Details</h3>
+
+              <div className="space-y-4 mb-6">
+                <div className="bg-surface-container-low p-4 rounded-xl space-y-3">
+                  <div>
+                    <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Name</p>
+                    <p className="text-on-surface font-medium">{formData.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Address</p>
+                    <p className="text-on-surface-variant text-sm">{formData.locationName}</p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div>
+                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Duration</p>
+                      <p className="text-on-surface-variant text-sm">{formData.durationDays} day(s)</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Coordinates</p>
+                      <p className="text-on-surface-variant text-xs font-mono">{formData.lat.toFixed(4)}, {formData.lng.toFixed(4)}</p>
+                    </div>
+                  </div>
+                  {formData.description && (
+                    <div>
+                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Description</p>
+                      <p className="text-on-surface-variant text-sm italic">&quot;{formData.description}&quot;</p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-outline-variant text-center">Is everything correct? This will be public.</p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={saveLocation}
+                  className="w-full bg-primary text-on-primary font-bold py-3 rounded-xl hover:bg-primary-container transition-all shadow-md active:scale-95"
+                >
+                  Confirm & Save
+                </button>
+                <button
+                  onClick={() => setShowConfirm(false)}
+                  className="w-full bg-surface hover:bg-surface-container py-3 rounded-xl text-on-surface-variant transition-all font-medium"
+                >
+                  Go Back & Edit
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </main>

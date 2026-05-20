@@ -15,19 +15,15 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const createChabeelIcon = (status: 'active' | 'upcoming' | 'ended' = 'active') => {
-  const colorClass = status === 'active' ? 'text-primary' : status === 'upcoming' ? 'text-outline' : 'text-outline-variant';
-  const pingEffect = status === 'active' ? '<div class="absolute inset-0 bg-secondary-container opacity-20 rounded-full animate-ping"></div>' : '';
-
+const createChabeelIcon = () => {
   return L.divIcon({
     className: 'custom-chabeel-icon',
     html: `<div class="relative flex items-center justify-center group">
-      <span class="material-symbols-outlined ${colorClass} text-[40px] drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">location_on</span>
-      ${pingEffect}
+      <span class="material-symbols-outlined text-error text-[60px] drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">location_on</span>
     </div>`,
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -35]
+    iconSize: [60, 60],
+    iconAnchor: [30, 60],
+    popupAnchor: [0, -55]
   });
 };
 
@@ -116,7 +112,7 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
           <Marker
             key={loc.id}
             position={[loc.lat, loc.lng]}
-            icon={createChabeelIcon(loc.status)}
+            icon={createChabeelIcon()}
           >
             <Popup>
               <div className="p-2 min-w-[200px]">
