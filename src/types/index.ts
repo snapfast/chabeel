@@ -7,6 +7,8 @@ export interface ChabeelLocation {
   createdAt: string;
   status?: 'active' | 'upcoming' | 'ended';
   distance?: string;
+  locationName?: string;
+  durationDays?: number;
 }
 
 export interface CreateChabeelInput {
@@ -14,4 +16,6 @@ export interface CreateChabeelInput {
   description?: string;
   lat: number;
   lng: number;
+  locationName?: string;
+  durationDays?: number;
 }

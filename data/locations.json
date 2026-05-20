@@ -4,6 +4,8 @@
     "name": "Test Chabeel",
     "lat": 30.7,
     "lng": 76.7,
-    "createdAt": "2026-05-20T10:28:22.049Z"
+    "locationName": "Test Location",
+    "durationDays": 3,
+    "createdAt": "2026-05-20T14:53:10.949Z"
   }
 ]

@@ -18,6 +18,8 @@ describe('Storage', () => {
       name: 'Test Chabeel',
       lat: 30.7,
       lng: 76.7,
+      locationName: 'Test Location',
+      durationDays: 3,
       createdAt: new Date().toISOString(),
     };
 
@@ -26,5 +28,7 @@ describe('Storage', () => {
 
     expect(locations).toHaveLength(1);
     expect(locations[0].name).toBe('Test Chabeel');
+    expect(locations[0].locationName).toBe('Test Location');
+    expect(locations[0].durationDays).toBe(3);
   });
 });

@@ -33,6 +33,8 @@ export async function POST(request: Request) {
       description: body.description,
       lat,
       lng,
+      locationName: body.locationName,
+      durationDays: body.durationDays,
       createdAt: new Date().toISOString(),
     };
 
