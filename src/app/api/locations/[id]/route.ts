@@ -10,7 +10,7 @@ export async function DELETE(
     await deleteLocation(id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('API Error (DELETE):', error);
+    return NextResponse.json({ error: 'Failed to delete location from upstream' }, { status: 502 });
   }
 }

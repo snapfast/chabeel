@@ -4,8 +4,13 @@ import { ChabeelLocation, CreateChabeelInput } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
-  const locations = await getLocations();
-  return NextResponse.json(locations);
+  try {
+    const locations = await getLocations();
+    return NextResponse.json(locations);
+  } catch (error) {
+    console.error('API Error (GET):', error);
+    return NextResponse.json({ error: 'Failed to fetch locations from upstream' }, { status: 502 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -41,7 +46,7 @@ export async function POST(request: Request) {
     await saveLocation(newLocation);
     return NextResponse.json(newLocation, { status: 201 });
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('API Error (POST):', error);
+    return NextResponse.json({ error: 'Failed to save location to upstream' }, { status: 502 });
   }
 }
