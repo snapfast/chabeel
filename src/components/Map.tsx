@@ -4,7 +4,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import L from 'leaflet';
 import { useState, useEffect } from 'react';
 import { ChabeelLocation } from '@/types';
-import { Locate } from 'lucide-react';
 
 // Fix for default marker icons in Leaflet with Next.js
 const DefaultIcon = L.icon({
@@ -16,11 +15,27 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+const createChabeelIcon = (status: 'active' | 'upcoming' | 'ended' = 'active') => {
+  const colorClass = status === 'active' ? 'text-primary' : status === 'upcoming' ? 'text-outline' : 'text-outline-variant';
+  const pingEffect = status === 'active' ? '<div class="absolute inset-0 bg-secondary-container opacity-20 rounded-full animate-ping"></div>' : '';
+
+  return L.divIcon({
+    className: 'custom-chabeel-icon',
+    html: `<div class="relative flex items-center justify-center group">
+      <span class="material-symbols-outlined ${colorClass} text-[40px] drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">location_on</span>
+      ${pingEffect}
+    </div>`,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -35]
+  });
+};
+
 const UserLocationIcon = L.divIcon({
   className: 'user-location-marker',
   html: `<div class="relative flex items-center justify-center">
-    <div class="absolute w-4 h-4 bg-blue-500 rounded-full animate-ping opacity-75"></div>
-    <div class="relative w-3 h-3 bg-blue-600 rounded-full border-2 border-white shadow-sm"></div>
+    <div class="absolute w-4 h-4 bg-primary-container rounded-full animate-ping opacity-75"></div>
+    <div class="relative w-3 h-3 bg-primary rounded-full border-2 border-white shadow-sm"></div>
   </div>`,
   iconSize: [20, 20],
   iconAnchor: [10, 10],
@@ -88,7 +103,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
         center={center}
         zoom={13}
         scrollWheelZoom={true}
-        className="h-full w-full"
+        className="h-full w-full z-0"
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -96,13 +111,35 @@ export default function Map({ locations, onMapClick }: MapProps) {
         />
 
         {locations.map((loc) => (
-          <Marker key={loc.id} position={[loc.lat, loc.lng]}>
+          <Marker
+            key={loc.id}
+            position={[loc.lat, loc.lng]}
+            icon={createChabeelIcon(loc.status)}
+          >
             <Popup>
-              <div className="p-2">
-                <h3 className="font-bold text-lg">{loc.name}</h3>
-                {loc.description && <p className="text-sm mt-1">{loc.description}</p>}
-                <div className="mt-2 text-[10px] text-gray-400">
-                  Added: {new Date(loc.createdAt).toLocaleDateString()}
+              <div className="p-2 min-w-[200px]">
+                <div className="flex flex-col gap-1">
+                  {loc.status === 'active' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px] mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
+                    </span>
+                  )}
+                  {loc.status === 'upcoming' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] mb-1">
+                      <span className="material-symbols-outlined text-[12px]">schedule</span> Starts in 2h
+                    </span>
+                  )}
+                  {loc.status === 'ended' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px] mb-1">
+                      Ended
+                    </span>
+                  )}
+                  <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
+                  {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
+                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex items-center justify-between">
+                    <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
+                    <span className="text-primary font-bold">Details &rarr;</span>
+                  </div>
                 </div>
               </div>
             </Popup>
@@ -125,11 +162,11 @@ export default function Map({ locations, onMapClick }: MapProps) {
           e.stopPropagation();
           findMe();
         }}
-        className="absolute bottom-6 left-6 z-[1000] bg-white p-3 rounded-full shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors text-orange-600"
+        className="absolute bottom-6 left-6 z-[1000] bg-surface p-3 rounded-full shadow-lg border border-outline-variant/30 hover:bg-surface-container-low transition-colors text-primary"
         title="Find my location"
         aria-label="Locate Me"
       >
-        <Locate size={24} />
+        <span className="material-symbols-outlined">my_location</span>
       </button>
     </div>
   );

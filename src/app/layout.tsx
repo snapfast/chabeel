@@ -6,8 +6,8 @@ import "leaflet/dist/leaflet.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Chabeel Map",
-  description: "Find near by chabeel locations",
+  title: "Chabeel Finder",
+  description: "Find nearby Chabeel locations",
 };
 
 export default function RootLayout({
@@ -17,6 +17,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
