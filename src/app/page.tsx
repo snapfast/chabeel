@@ -98,9 +98,7 @@ export default function Home() {
         {/* Floating Footer for Desktop Map View */}
         <div className="hidden md:block absolute bottom-sm right-sm z-[1000]">
           <div className="bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/30 text-outline text-[12px] flex gap-4 shadow-sm">
-            <span className="">© 2024 Chabeel Foundation.</span>
-            <a className="hover:text-primary transition-colors" href="#">Privacy</a>
-            <a className="hover:text-primary transition-colors" href="#">Terms</a>
+            <span>Maintained by Madhup Tiwari (7888709084)</span>
           </div>
         </div>
       </div>
