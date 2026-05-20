@@ -1,63 +1,55 @@
-import fs from 'fs/promises';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import path from 'path';
 import { ChabeelLocation } from '@/types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'locations.json');
-
-// Synchronous initialization at module load (safe for one-time setup)
-if (!existsSync(DATA_DIR)) {
-  mkdirSync(DATA_DIR, { recursive: true });
-}
-
-if (!existsSync(DATA_FILE)) {
-  writeFileSync(DATA_FILE, JSON.stringify([]));
-}
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyOhkO-K9w-ErN47ZSYSfYqohMTU0VMi6ytTZKI_9lGprRKORxQ8zRDNXns7vM9dHS15g/exec';
 
 export async function getLocations(): Promise<ChabeelLocation[]> {
   try {
-    const data = await fs.readFile(DATA_FILE, 'utf8');
-    return JSON.parse(data);
+    const response = await fetch(BACKEND_URL, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch locations: ${response.statusText}`);
+    }
+    const result = await response.json();
+    return result.data || [];
   } catch (error) {
-    console.error('Error reading locations:', error);
+    console.error('Error reading locations from backend:', error);
     return [];
   }
 }
 
-// Simple in-memory lock to prevent race conditions during file updates
-let writeLock = Promise.resolve();
-
 export async function saveLocation(location: ChabeelLocation): Promise<void> {
-  // Chain the operations to ensure they happen sequentially
-  // Use catch to ensure that a previous failed write doesn't block future writes
-  writeLock = writeLock.catch(() => {}).then(async () => {
-    try {
-      const data = await fs.readFile(DATA_FILE, 'utf8');
-      const locations: ChabeelLocation[] = JSON.parse(data);
-      locations.push(location);
-      await fs.writeFile(DATA_FILE, JSON.stringify(locations, null, 2));
-    } catch (error) {
-      console.error('Error saving location:', error);
-      throw error;
-    }
-  });
+  try {
+    const response = await fetch(BACKEND_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(location),
+    });
 
-  return writeLock;
+    if (!response.ok) {
+      throw new Error(`Failed to save location: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error saving location to backend:', error);
+    throw error;
+  }
 }
 
 export async function deleteLocation(id: string): Promise<void> {
-  writeLock = writeLock.catch(() => {}).then(async () => {
-    try {
-      const data = await fs.readFile(DATA_FILE, 'utf8');
-      const locations: ChabeelLocation[] = JSON.parse(data);
-      const filteredLocations = locations.filter(loc => loc.id !== id);
-      await fs.writeFile(DATA_FILE, JSON.stringify(filteredLocations, null, 2));
-    } catch (error) {
-      console.error('Error deleting location:', error);
-      throw error;
-    }
-  });
+  try {
+    const response = await fetch(BACKEND_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action: 'delete', id }),
+    });
 
-  return writeLock;
+    if (!response.ok) {
+      throw new Error(`Failed to delete location: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error deleting location from backend:', error);
+    throw error;
+  }
 }

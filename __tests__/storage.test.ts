@@ -1,31 +1,31 @@
 import { getLocations, saveLocation, deleteLocation } from '@/lib/storage';
-import fs from 'fs/promises';
-import path from 'path';
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'locations.json');
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyOhkO-K9w-ErN47ZSYSfYqohMTU0VMi6ytTZKI_9lGprRKORxQ8zRDNXns7vM9dHS15g/exec';
 
 describe('Storage', () => {
-  beforeEach(async () => {
-    await fs.writeFile(DATA_FILE, JSON.stringify([]));
+  beforeEach(() => {
+    global.fetch = jest.fn();
   });
 
-  it('should save and retrieve locations', async () => {
-    const loc = {
-      id: '1',
-      name: 'Test',
-      lat: 30,
-      lng: 76,
-      locationName: 'Test Loc',
-      durationDays: 1,
-      createdAt: new Date().toISOString()
-    };
-    await saveLocation(loc);
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('should fetch locations from backend', async () => {
+    const mockData = [
+      { id: '1', name: 'Test Chabeel', lat: 30, lng: 76 }
+    ];
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ data: mockData }),
+    });
+
     const locations = await getLocations();
-    expect(locations).toHaveLength(1);
-    expect(locations[0].name).toBe('Test');
+    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, { cache: 'no-store' });
+    expect(locations).toEqual(mockData);
   });
 
-  it('should delete a location', async () => {
+  it('should save location to backend', async () => {
     const loc = {
       id: '1',
       name: 'Test',
@@ -35,9 +35,26 @@ describe('Storage', () => {
       durationDays: 1,
       createdAt: new Date().toISOString()
     };
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+    });
+
     await saveLocation(loc);
+    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify(loc),
+    }));
+  });
+
+  it('should delete a location from backend', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+    });
+
     await deleteLocation('1');
-    const locations = await getLocations();
-    expect(locations).toHaveLength(0);
+    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ action: 'delete', id: '1' }),
+    }));
   });
 });
