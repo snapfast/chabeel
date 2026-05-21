@@ -82,6 +82,21 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
   };
 
   useEffect(() => {
+    const getIPLocation = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        if (data.latitude && data.longitude) {
+          const newPos: [number, number] = [data.latitude, data.longitude];
+          setCenter(newPos);
+          // Set userLocation to show the approximate "nearby" area
+          setUserLocation(newPos);
+        }
+      } catch (error) {
+        console.error('IP Geolocation failed:', error);
+      }
+    };
+
     // Attempt initial geolocation once on mount
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -90,8 +105,14 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
           setCenter(newPos);
           setUserLocation(newPos);
         },
-        () => console.log('Initial geolocation failed or denied')
+        async (error) => {
+          console.log('Initial geolocation failed or denied:', error.message);
+          await getIPLocation();
+        },
+        { timeout: 5000 }
       );
+    } else {
+      getIPLocation();
     }
   }, []);
 
