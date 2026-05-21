@@ -53,22 +53,3 @@ export async function checkInLocation(id: string): Promise<void> {
     throw error;
   }
 }
-
-export async function deleteLocation(id: string): Promise<void> {
-  try {
-    const response = await fetch(BACKEND_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ action: 'delete', id }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete location: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error('Error deleting location from backend:', error);
-    throw error;
-  }
-}
