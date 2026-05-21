@@ -40,7 +40,6 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
-  onDelete?: (id: string) => void;
 }
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -61,7 +60,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick, onDelete }: MapProps) {
+export default function Map({ locations, onMapClick }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
@@ -170,14 +169,6 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
                     <div className="flex items-center justify-between border-t border-outline-variant/10 pt-1">
                       <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
                     </div>
-                    {onDelete && (
-                      <button
-                        onClick={() => onDelete(loc.id)}
-                        className="text-error font-bold hover:underline self-end"
-                      >
-                        Delete Chabeel
-                      </button>
-                    )}
                   </div>
                 </div>
               </div>

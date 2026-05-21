@@ -91,20 +91,6 @@ export default function Home() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this Chabeel?')) return;
-    try {
-      const res = await fetch(`/api/locations/${id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        fetchLocations();
-      }
-    } catch (error) {
-      console.error('Failed to delete location', error);
-    }
-  };
-
   return (
     <main className="flex-1 relative flex overflow-hidden h-screen map-bg">
       {/* Map Area */}
@@ -112,7 +98,6 @@ export default function Home() {
         <Map
           locations={filteredLocations}
           onMapClick={handleMapClick}
-          onDelete={handleDelete}
         />
 
         {/* Branding Tile */}

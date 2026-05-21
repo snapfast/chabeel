@@ -1,4 +1,4 @@
-import { getLocations, saveLocation, deleteLocation } from '@/lib/storage';
+import { getLocations, saveLocation } from '@/lib/storage';
 
 const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyOhkO-K9w-ErN47ZSYSfYqohMTU0VMi6ytTZKI_9lGprRKORxQ8zRDNXns7vM9dHS15g/exec';
 
@@ -46,15 +46,4 @@ describe('Storage', () => {
     }));
   });
 
-  it('should delete a location from backend', async () => {
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-    });
-
-    await deleteLocation('1');
-    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, expect.objectContaining({
-      method: 'POST',
-      body: JSON.stringify({ action: 'delete', id: '1' }),
-    }));
-  });
 });
