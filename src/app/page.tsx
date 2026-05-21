@@ -125,15 +125,15 @@ export default function Home() {
 
         {/* Branding Tile */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
-          <div className="bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full border border-outline-variant/30 shadow-sm flex items-center gap-2">
-            <span className="text-[10px] font-bold text-on-surface/70 tracking-tight">Chabeel Finder</span>
-            <div className="w-[1px] h-2.5 bg-outline-variant/30"></div>
-            <div className="flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-              <span className="text-[9px] font-bold text-primary uppercase tracking-tighter">Crowd Sourced</span>
+          <div className="bg-white px-4 py-2 rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3">
+            <span className="text-xs font-black text-black tracking-tight">Chabeel Finder</span>
+            <div className="w-[2px] h-3 bg-black"></div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+              <span className="text-xs font-black text-black uppercase tracking-tighter">Crowd Sourced</span>
             </div>
-            <div className="w-[1px] h-2.5 bg-outline-variant/30"></div>
-            <span className="text-[9px] text-outline font-medium">Share Food • Public</span>
+            <div className="w-[2px] h-3 bg-black"></div>
+            <span className="text-xs text-black font-bold uppercase tracking-tight">Public</span>
           </div>
         </div>
 
@@ -158,80 +158,80 @@ export default function Home() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3 relative">
+          <form onSubmit={handleSubmit} className="space-y-4 relative">
             {isSaving && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-md">
-                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
-                <p className="text-sm font-medium text-on-surface-variant">Saving Chabeel details...</p>
+                <div className="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin mb-3"></div>
+                <p className="text-base font-black text-black">Saving Chabeel details...</p>
               </div>
             )}
             <div>
-              <label htmlFor="chabeel-name" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Chabeel Name</label>
+              <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Chabeel Name</label>
               <input
                 id="chabeel-name"
                 required
                 type="text"
                 placeholder="e.g. Gurudwara Sector 34"
-                className="w-full p-2 text-base border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-400 font-bold"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
 
-            <div className="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
-              <label className="block text-[9px] uppercase font-bold text-outline mb-0.5">Detected Address</label>
-              <p className="text-xs text-on-surface-variant leading-tight line-clamp-2">
+            <div className="bg-gray-50 p-3 rounded-lg border-2 border-black border-dashed">
+              <label className="block text-xs uppercase font-black text-black mb-1">Detected Address</label>
+              <p className="text-sm text-black font-bold leading-tight">
                 {formData.locationName || 'Pinpoint location on map'}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="chabeel-start-date" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Start Date</label>
+                <label htmlFor="chabeel-start-date" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Start Date</label>
                 <input
                   id="chabeel-start-date"
                   required
                   type="date"
-                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold"
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                 />
               </div>
               <div>
-                <label htmlFor="chabeel-duration" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Duration</label>
+                <label htmlFor="chabeel-duration" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Duration</label>
                 <div className="relative">
                   <input
                     id="chabeel-duration"
                     required
                     type="number"
                     min="1"
-                    className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none pr-10"
+                    className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none pr-12 font-bold"
                     value={formData.durationDays}
                     onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-outline pointer-events-none">DAYS</span>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-black text-black pointer-events-none">DAYS</span>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="chabeel-hours" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Hours</label>
+                <label htmlFor="chabeel-hours" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Hours</label>
                 <input
                   id="chabeel-hours"
                   type="text"
                   placeholder="10AM - 5PM"
-                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.operatingHours}
                   onChange={(e) => setFormData({ ...formData, operatingHours: e.target.value })}
                 />
               </div>
               <div>
-                <label htmlFor="chabeel-service" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Service</label>
+                <label htmlFor="chabeel-service" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Service</label>
                 <select
                   id="chabeel-service"
-                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white appearance-none"
-                  style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")'}}
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none bg-white appearance-none font-bold"
+                  style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'black\' stroke-width=\'3\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1rem'}}
                   value={formData.serviceType}
                   onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
                 >
@@ -243,25 +243,25 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="chabeel-contact-name" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Contact Name</label>
+                <label htmlFor="chabeel-contact-name" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Contact Name</label>
                 <input
                   id="chabeel-contact-name"
                   type="text"
                   placeholder="Optional"
-                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.contactName}
                   onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
                 />
               </div>
               <div>
-                <label htmlFor="chabeel-contact-phone" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Phone</label>
+                <label htmlFor="chabeel-contact-phone" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Phone</label>
                 <input
                   id="chabeel-contact-phone"
                   type="tel"
                   placeholder="Optional"
-                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                 />
@@ -269,23 +269,23 @@ export default function Home() {
             </div>
 
             <div>
-              <label htmlFor="chabeel-desc" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Notes</label>
+              <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Notes</label>
               <textarea
                 id="chabeel-desc"
                 placeholder="Any specifics?"
-                className="w-full p-2 text-sm border border-outline-variant rounded-lg h-16 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+                className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-400"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
-            <div className="bg-surface-container-low p-3 rounded-md border border-dashed border-outline-variant flex justify-between items-center">
+            <div className="bg-white p-4 rounded-md border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center">
               <div>
-                <p className="text-[10px] text-outline uppercase font-bold mb-0.5">Coordinates</p>
-                <p className="text-xs font-mono text-on-surface-variant">{formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}</p>
+                <p className="text-xs text-black uppercase font-black mb-1">Coordinates</p>
+                <p className="text-sm font-black text-black">{formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] text-outline uppercase font-bold mb-0.5">Source</p>
-                <p className="text-[10px] font-bold text-primary uppercase">Web App</p>
+                <p className="text-xs text-black uppercase font-black mb-1">Source</p>
+                <p className="text-sm font-black text-black uppercase">Web App</p>
               </div>
             </div>
 
@@ -294,11 +294,11 @@ export default function Home() {
                 id="confirm-details"
                 type="checkbox"
                 required
-                className="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"
+                className="mt-1 h-5 w-5 rounded border-2 border-black text-black focus:ring-0"
                 checked={isConfirmed}
                 onChange={(e) => setIsConfirmed(e.target.checked)}
               />
-              <label htmlFor="confirm-details" className="text-sm text-on-surface-variant">
+              <label htmlFor="confirm-details" className="text-sm text-black font-black leading-tight">
                 I confirm these details are real and accurate. This location will be public.
               </label>
             </div>
@@ -306,7 +306,7 @@ export default function Home() {
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full bg-primary text-on-primary font-bold py-3 rounded-md hover:bg-primary-container transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-black text-white font-black py-4 rounded-md hover:bg-gray-900 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-1 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed text-lg uppercase tracking-widest"
             >
               {isSaving ? 'Saving...' : 'Save Public Location'}
             </button>
