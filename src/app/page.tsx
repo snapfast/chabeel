@@ -12,7 +12,7 @@ const Map = dynamic(() => import('@/components/Map'), {
 export default function Home() {
   const [locations, setLocations] = useState<ChabeelLocation[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
   const [formData, setFormData] = useState({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
 
   useEffect(() => {
@@ -54,9 +54,13 @@ export default function Home() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowConfirm(true);
+    if (!isConfirmed) {
+      alert('Please confirm that the details are real.');
+      return;
+    }
+    await saveLocation();
   };
 
   const saveLocation = async () => {
@@ -67,8 +71,8 @@ export default function Home() {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        setShowConfirm(false);
         setShowAddForm(false);
+        setIsConfirmed(false);
         setFormData({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
         fetchLocations();
       }
@@ -188,6 +192,21 @@ export default function Home() {
               <p className="text-[10px] text-outline uppercase font-bold mb-1">Selected Location</p>
               <p className="text-xs font-mono text-on-surface-variant">{formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}</p>
             </div>
+
+            <div className="flex items-start gap-3 py-2">
+              <input
+                id="confirm-details"
+                type="checkbox"
+                required
+                className="mt-1 h-4 w-4 rounded border-outline-variant text-primary focus:ring-primary"
+                checked={isConfirmed}
+                onChange={(e) => setIsConfirmed(e.target.checked)}
+              />
+              <label htmlFor="confirm-details" className="text-sm text-on-surface-variant">
+                I confirm these details are real and accurate. This location will be public.
+              </label>
+            </div>
+
             <button
               type="submit"
               className="w-full bg-primary text-on-primary font-bold py-3 rounded-md hover:bg-primary-container transition-all shadow-lg active:scale-[0.98]"
@@ -195,62 +214,6 @@ export default function Home() {
               Save Public Location
             </button>
           </form>
-        </div>
-      )}
-
-      {/* Confirmation Popup */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="p-8">
-              <h3 className="text-xl font-bold text-on-surface mb-4">Confirm Chabeel Details</h3>
-
-              <div className="space-y-4 mb-6">
-                <div className="bg-surface-container-low p-4 rounded-xl space-y-3">
-                  <div>
-                    <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Name</p>
-                    <p className="text-on-surface font-medium">{formData.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Address</p>
-                    <p className="text-on-surface-variant text-sm">{formData.locationName}</p>
-                  </div>
-                  <div className="flex gap-4">
-                    <div>
-                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Duration</p>
-                      <p className="text-on-surface-variant text-sm">{formData.durationDays} day(s)</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Coordinates</p>
-                      <p className="text-on-surface-variant text-xs font-mono">{formData.lat.toFixed(4)}, {formData.lng.toFixed(4)}</p>
-                    </div>
-                  </div>
-                  {formData.description && (
-                    <div>
-                      <p className="text-[10px] text-outline uppercase font-bold tracking-wider">Description</p>
-                      <p className="text-on-surface-variant text-sm italic">&quot;{formData.description}&quot;</p>
-                    </div>
-                  )}
-                </div>
-                <p className="text-sm text-outline-variant text-center">Is everything correct? This will be public.</p>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={saveLocation}
-                  className="w-full bg-primary text-on-primary font-bold py-3 rounded-xl hover:bg-primary-container transition-all shadow-md active:scale-95"
-                >
-                  Confirm & Save
-                </button>
-                <button
-                  onClick={() => setShowConfirm(false)}
-                  className="w-full bg-surface hover:bg-surface-container py-3 rounded-xl text-on-surface-variant transition-all font-medium"
-                >
-                  Go Back & Edit
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
     </main>
