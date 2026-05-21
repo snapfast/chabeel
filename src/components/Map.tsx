@@ -40,7 +40,6 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
-  onCheckIn?: (id: string) => Promise<void>;
 }
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -61,26 +60,9 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
+export default function Map({ locations, onMapClick }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [checkingInId, setCheckingInId] = useState<string | null>(null);
-  const [justCheckedInIds, setJustCheckedInIds] = useState<Set<string>>(new Set());
-
-  const handleCheckIn = async (id: string) => {
-    if (checkingInId || justCheckedInIds.has(id)) return;
-
-    setCheckingInId(id);
-    try {
-      await onCheckIn?.(id);
-      setJustCheckedInIds(prev => new Set(prev).add(id));
-    } catch (error) {
-      console.error('Check-in failed:', error);
-      alert('Failed to check in. Please try again.');
-    } finally {
-      setCheckingInId(null);
-    }
-  };
 
   const findMe = () => {
     if (navigator.geolocation) {
@@ -161,75 +143,113 @@ export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
             icon={createChabeelIcon()}
           >
             <Popup>
-              <div className="p-2 min-w-[200px]">
-                <div className="flex flex-col gap-1">
-                  {loc.status === 'active' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px] mb-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
-                    </span>
-                  )}
-                  {loc.status === 'upcoming' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] mb-1">
-                      <span className="material-symbols-outlined text-[12px]">schedule</span> Starts in 2h
-                    </span>
-                  )}
-                  {loc.status === 'ended' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px] mb-1">
-                      Ended
-                    </span>
-                  )}
-                  <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
-                  {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
-
-                  <div className="mt-3 flex items-center justify-between bg-surface-container-low p-2 rounded-lg border border-outline-variant/20">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] text-outline uppercase font-bold leading-tight">Check-ins</span>
-                      <span className="text-lg font-bold text-primary leading-tight">{loc.checkInCount || 0}</span>
-                    </div>
-                    <button
-                      onClick={() => handleCheckIn(loc.id)}
-                      disabled={checkingInId === loc.id || justCheckedInIds.has(loc.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95 ${
-                        justCheckedInIds.has(loc.id)
-                          ? 'bg-[#137333] text-white opacity-80 cursor-default'
-                          : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container'
-                      } disabled:opacity-70 disabled:cursor-not-allowed`}
-                    >
-                      <span className="material-symbols-outlined text-sm">
-                        {justCheckedInIds.has(loc.id) ? 'check_circle' : 'person_pin_circle'}
-                      </span>
-                      {checkingInId === loc.id ? 'Checking...' : justCheckedInIds.has(loc.id) ? 'Checked In' : 'Check In'}
-                    </button>
-                  </div>
-
-                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
-                    <div className="flex items-center justify-between opacity-60 italic">
-                      <span>Public • Crowd Sourced</span>
-                    </div>
-
+              <div className="p-1 min-w-[220px]">
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-0.5">
+                    <h3 className="font-bold text-lg text-on-surface leading-tight">{loc.name}</h3>
                     {loc.locationName && (
-                      <div className="flex items-start gap-1.5 text-on-surface-variant">
-                        <span className="material-symbols-outlined text-[16px] mt-0.5">location_on</span>
-                        <span className="text-xs leading-relaxed">{loc.locationName}</span>
+                      <div className="flex items-start gap-1 text-on-surface-variant opacity-80">
+                        <span className="material-symbols-outlined text-[14px] mt-0.5">location_on</span>
+                        <span className="text-[10px] leading-tight">{loc.locationName}</span>
                       </div>
                     )}
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-2 bg-surface-container-low p-2 rounded-lg border border-outline-variant/10">
+                  {loc.serviceType && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">
+                        <span className="material-symbols-outlined text-[12px]">restaurant</span>
+                        {loc.serviceType}
+                      </span>
+                      {loc.isVerified && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-tight">
+                          <span className="material-symbols-outlined text-[12px]">verified</span>
+                          Verified
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {loc.description && (
+                    <p className="text-xs text-on-surface-variant whitespace-pre-wrap line-clamp-2 bg-surface-container-lowest p-2 rounded-md border border-outline-variant/10">
+                      {loc.description}
+                    </p>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-3 bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
+                    <div className="space-y-2.5">
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">Start Date</p>
-                        <p className="text-xs font-medium text-on-surface">{startDate.toLocaleDateString('en-US', options)}</p>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Status & Time</p>
+                        <div className="flex flex-col gap-1">
+                          {loc.status === "active" && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] text-[9px] font-bold uppercase w-fit">
+                              <span className="w-1 h-1 rounded-full bg-[#137333]"></span> Active
+                            </span>
+                          )}
+                          {loc.status === "upcoming" && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[9px] font-bold uppercase w-fit">
+                              Upcoming
+                            </span>
+                          )}
+                          {loc.status === "ended" && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-[9px] font-bold uppercase w-fit">
+                              Ended
+                            </span>
+                          )}
+                          <span className="text-[10px] font-medium text-on-surface flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">schedule</span>
+                            {loc.operatingHours || 'Not specified'}
+                          </span>
+                        </div>
                       </div>
+
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">End Date</p>
-                        <p className="text-xs font-medium text-on-surface">{endDate.toLocaleDateString('en-US', options)}</p>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Timeline</p>
+                        <div className="flex flex-col leading-tight">
+                          <span className="text-[11px] font-medium text-on-surface">
+                            {loc.startDate ? new Date(loc.startDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "N/A"}
+                          </span>
+                          <span className="text-[9px] text-on-surface-variant uppercase">
+                            {loc.durationDays} {loc.durationDays === 1 ? "Day" : "Days"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2.5 border-l border-outline-variant/20 pl-3">
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Contact</p>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-[10px] font-bold text-on-surface truncate">
+                            {loc.contactName || 'Anonymous'}
+                          </span>
+                          {loc.contactPhone && (
+                            <a href={`tel:${loc.contactPhone}`} className="text-[10px] text-primary hover:underline flex items-center gap-0.5">
+                              <span className="material-symbols-outlined text-[12px]">call</span>
+                              {loc.contactPhone}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Source</p>
+                        <span className="text-[10px] font-medium text-on-surface-variant uppercase">
+                          {loc.source || 'Community'}
+                        </span>
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex justify-between items-center text-[8px] text-outline uppercase font-bold tracking-tighter opacity-50 px-1">
+                    <span>Public • Crowd Sourced</span>
+                    <span>{loc.id.slice(0, 8)}</span>
+                  </div>
                 </div>
-              </Popup>
+              </div>
+            </Popup>
             </Marker>
-          );
-        })}
+        ))}
 
         {userLocation && (
           <Marker position={userLocation} icon={UserLocationIcon}>

@@ -2,11 +2,16 @@ import { NextResponse } from 'next/server';
 import { getLocations, saveLocation } from '@/lib/storage';
 import { ChabeelLocation, CreateChabeelInput } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { calculateStatus } from '@/lib/utils';
 
 export async function GET() {
   try {
     const locations = await getLocations();
-    return NextResponse.json(locations);
+    const locationsWithStatus = locations.map(loc => ({
+      ...loc,
+      status: calculateStatus(loc)
+    }));
+    return NextResponse.json(locationsWithStatus);
   } catch (error) {
     console.error('API Error (GET):', error);
     return NextResponse.json({ error: 'Failed to fetch locations from upstream' }, { status: 502 });
@@ -40,8 +45,16 @@ export async function POST(request: Request) {
       lng,
       locationName: body.locationName,
       durationDays: body.durationDays,
-      checkInCount: 0,
+      startDate: body.startDate,
+      operatingHours: body.operatingHours,
+      contactName: body.contactName,
+      contactPhone: body.contactPhone,
+      serviceType: body.serviceType,
+      source: body.source || 'web',
+      isVerified: false,
+      verificationCount: 0,
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     await saveLocation(newLocation);
