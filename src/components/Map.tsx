@@ -18,8 +18,8 @@ L.Marker.prototype.options.icon = DefaultIcon;
 const createChabeelIcon = () => {
   return L.divIcon({
     className: 'custom-chabeel-icon',
-    html: `<div class="relative flex items-center justify-center group">
-      <span class="material-symbols-outlined text-error text-[60px] drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">location_on</span>
+    html: `<div class="relative flex items-end justify-center group w-[60px] h-[60px]">
+      <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;">location_on</span>
     </div>`,
     iconSize: [60, 60],
     iconAnchor: [30, 60],
