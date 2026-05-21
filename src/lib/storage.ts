@@ -35,21 +35,21 @@ export async function saveLocation(location: ChabeelLocation): Promise<void> {
   }
 }
 
-export async function deleteLocation(id: string): Promise<void> {
+export async function checkInLocation(id: string): Promise<void> {
   try {
     const response = await fetch(BACKEND_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ action: 'delete', id }),
+      body: JSON.stringify({ action: 'checkin', id }),
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to delete location: ${response.statusText}`);
+      throw new Error(`Failed to check in: ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error deleting location from backend:', error);
+    console.error('Error checking in to location on backend:', error);
     throw error;
   }
 }

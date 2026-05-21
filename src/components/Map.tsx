@@ -40,7 +40,7 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
-  onDelete?: (id: string) => void;
+  onCheckIn?: (id: string) => Promise<void>;
 }
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -61,9 +61,35 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick, onDelete }: MapProps) {
+export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [checkedInIds, setCheckedInIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('chabeel_checkins');
+    if (stored) {
+      try {
+        setCheckedInIds(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse check-ins from localStorage', e);
+      }
+    }
+  }, []);
+
+  const handleCheckInAction = async (id: string) => {
+    if (checkedInIds.includes(id)) return;
+    if (onCheckIn) {
+      try {
+        await onCheckIn(id);
+        const newCheckedInIds = [...checkedInIds, id];
+        setCheckedInIds(newCheckedInIds);
+        localStorage.setItem('chabeel_checkins', JSON.stringify(newCheckedInIds));
+      } catch (error) {
+        console.error('Check-in failed', error);
+      }
+    }
+  };
 
   const findMe = () => {
     if (navigator.geolocation) {
@@ -76,6 +102,10 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
         (error) => {
           console.error('Error finding location:', error);
           alert('Could not get your location. Please check browser permissions.');
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
         }
       );
     }
@@ -107,9 +137,13 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
         },
         async (error) => {
           console.log('Initial geolocation failed or denied:', error.message);
+          // Fallback to IP location as a last resort
           await getIPLocation();
         },
-        { timeout: 5000 }
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
       );
     } else {
       getIPLocation();
@@ -129,60 +163,57 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {locations.map((loc) => {
-          let startDate: Date;
-          if (loc.startDate) {
-            const [y, m, d] = loc.startDate.split('-').map(Number);
-            // Use UTC to avoid local timezone issues
-            startDate = new Date(Date.UTC(y, m - 1, d));
-          } else {
-            startDate = new Date(loc.createdAt);
-          }
+        {locations.map((loc) => (
+          <Marker
+            key={loc.id}
+            position={[loc.lat, loc.lng]}
+            icon={createChabeelIcon()}
+          >
+            <Popup>
+              <div className="p-2 min-w-[200px]">
+                <div className="flex flex-col gap-1">
+                  {loc.status === 'active' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px] mb-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
+                    </span>
+                  )}
+                  {loc.status === 'upcoming' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] mb-1">
+                      <span className="material-symbols-outlined text-[12px]">schedule</span> Starts in 2h
+                    </span>
+                  )}
+                  {loc.status === 'ended' && (
+                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px] mb-1">
+                      Ended
+                    </span>
+                  )}
+                  <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
+                  {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
 
-          if (isNaN(startDate.getTime())) {
-            startDate = new Date(loc.createdAt);
-          }
+                  <div className="mt-3 flex items-center justify-between bg-surface-container-low p-2 rounded-lg border border-outline-variant/20">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-outline uppercase font-bold leading-tight">Check-ins</span>
+                      <span className="text-lg font-bold text-primary leading-tight">{loc.checkInCount || 0}</span>
+                    </div>
+                    <button
+                      onClick={() => handleCheckInAction(loc.id)}
+                      disabled={checkedInIds.includes(loc.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 ${
+                        checkedInIds.includes(loc.id)
+                          ? 'bg-surface-variant text-on-surface-variant cursor-default'
+                          : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-sm active:scale-95'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        {checkedInIds.includes(loc.id) ? 'check_circle' : 'person_pin_circle'}
+                      </span>
+                      {checkedInIds.includes(loc.id) ? 'Checked In' : 'Check In'}
+                    </button>
+                  </div>
 
-          const endDate = new Date(startDate);
-          if (loc.durationDays) {
-            endDate.setUTCDate(startDate.getUTCDate() + loc.durationDays);
-          }
-
-          const options: Intl.DateTimeFormatOptions = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            timeZone: 'UTC'
-          };
-
-          return (
-            <Marker
-              key={loc.id}
-              position={[loc.lat, loc.lng]}
-              icon={createChabeelIcon()}
-            >
-              <Popup>
-                <div className="p-2 min-w-[240px]">
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between">
-                      <div className="flex flex-col gap-1">
-                        {loc.status === 'active' && (
-                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px]">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
-                          </span>
-                        )}
-                        {loc.status === 'upcoming' && (
-                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px]">
-                            <span className="material-symbols-outlined text-[12px]">schedule</span> Upcoming
-                          </span>
-                        )}
-                        {loc.status === 'ended' && (
-                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px]">
-                            Ended
-                          </span>
-                        )}
-                        <h3 className="font-bold text-lg text-on-surface leading-tight">{loc.name}</h3>
-                      </div>
+                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
+                    <div className="flex items-center justify-between opacity-60 italic">
+                      <span>Public • Crowd Sourced</span>
                     </div>
 
                     {loc.locationName && (
@@ -200,27 +231,6 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
                       <div>
                         <p className="text-[9px] uppercase font-bold text-outline tracking-wider">End Date</p>
                         <p className="text-xs font-medium text-on-surface">{endDate.toLocaleDateString('en-US', options)}</p>
-                      </div>
-                    </div>
-
-                    {loc.description && (
-                      <div className="mt-1">
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-1">Description</p>
-                        <p className="text-xs text-on-surface-variant bg-surface-container-lowest p-2 rounded-md border border-outline-variant/5 whitespace-pre-wrap">{loc.description}</p>
-                      </div>
-                    )}
-
-                    <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
-                      <div className="flex items-center justify-between opacity-60 italic">
-                        <span>Public • Crowd Sourced</span>
-                        {onDelete && (
-                          <button
-                            onClick={() => onDelete(loc.id)}
-                            className="text-error font-bold hover:underline"
-                          >
-                            Delete
-                          </button>
-                        )}
                       </div>
                     </div>
                   </div>

@@ -12,6 +12,7 @@ const Map = dynamic(() => import('@/components/Map'), {
 export default function Home() {
   const [locations, setLocations] = useState<ChabeelLocation[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -31,7 +32,12 @@ export default function Home() {
     try {
       const res = await fetch('/api/locations');
       const data = await res.json();
-      setLocations(data);
+      if (Array.isArray(data)) {
+        setLocations(data);
+      } else {
+        console.error('Expected array from /api/locations, got:', data);
+        setLocations([]);
+      }
     } catch (error) {
       console.error('Failed to fetch locations', error);
     }
@@ -72,6 +78,7 @@ export default function Home() {
   };
 
   const saveLocation = async () => {
+    setIsSaving(true);
     try {
       const res = await fetch('/api/locations', {
         method: 'POST',
@@ -95,20 +102,27 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to save location', error);
       alert('Failed to save location. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this Chabeel?')) return;
+  const handleCheckIn = async (id: string) => {
     try {
-      const res = await fetch(`/api/locations/${id}`, {
-        method: 'DELETE',
+      const res = await fetch(`/api/locations/${id}/checkin`, {
+        method: 'POST',
       });
       if (res.ok) {
-        fetchLocations();
+        // Optionally optimistic update or just refresh
+        setLocations(prev => prev.map(loc =>
+          loc.id === id ? { ...loc, checkInCount: (loc.checkInCount || 0) + 1 } : loc
+        ));
+      } else {
+        throw new Error('Failed to check in');
       }
     } catch (error) {
-      console.error('Failed to delete location', error);
+      console.error('Failed to check in', error);
+      throw error;
     }
   };
 
@@ -119,7 +133,7 @@ export default function Home() {
         <Map
           locations={filteredLocations}
           onMapClick={handleMapClick}
-          onDelete={handleDelete}
+          onCheckIn={handleCheckIn}
         />
 
         {/* Branding Tile */}
@@ -157,7 +171,13 @@ export default function Home() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 relative">
+            {isSaving && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-md">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+                <p className="text-sm font-medium text-on-surface-variant">Saving Chabeel details...</p>
+              </div>
+            )}
             <div>
               <label htmlFor="chabeel-name" className="block text-sm font-medium text-on-surface-variant mb-1">Suggestive Chabeel Name</label>
               <input
@@ -238,9 +258,10 @@ export default function Home() {
 
             <button
               type="submit"
-              className="w-full bg-primary text-on-primary font-bold py-3 rounded-md hover:bg-primary-container transition-all shadow-lg active:scale-[0.98]"
+              disabled={isSaving}
+              className="w-full bg-primary text-on-primary font-bold py-3 rounded-md hover:bg-primary-container transition-all shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Save Public Location
+              {isSaving ? 'Saving...' : 'Save Public Location'}
             </button>
           </form>
         </div>

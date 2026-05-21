@@ -9,7 +9,7 @@ export interface ChabeelLocation {
   distance?: string;
   locationName?: string;
   durationDays?: number;
-  startDate?: string;
+  checkInCount?: number;
 }
 
 export interface CreateChabeelInput {

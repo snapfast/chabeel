@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       lng,
       locationName: body.locationName,
       durationDays: body.durationDays,
-      startDate: body.startDate,
+      checkInCount: 0,
       createdAt: new Date().toISOString(),
     };
 
