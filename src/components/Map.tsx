@@ -40,7 +40,6 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
-  onDelete?: (id: string) => void;
   onCheckIn?: (id: string) => Promise<void>;
 }
 
@@ -62,7 +61,7 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick, onDelete, onCheckIn }: MapProps) {
+export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [checkedInIds, setCheckedInIds] = useState<string[]>([]);

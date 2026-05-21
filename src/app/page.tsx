@@ -110,25 +110,6 @@ export default function Home() {
     }
   };
 
-  const handleCheckIn = async (id: string) => {
-    try {
-      const res = await fetch(`/api/locations/${id}/checkin`, {
-        method: 'POST',
-      });
-      if (res.ok) {
-        // Optionally optimistic update or just refresh
-        setLocations(prev => prev.map(loc =>
-          loc.id === id ? { ...loc, checkInCount: (loc.checkInCount || 0) + 1 } : loc
-        ));
-      } else {
-        throw new Error('Failed to check in');
-      }
-    } catch (error) {
-      console.error('Failed to check in', error);
-      throw error;
-    }
-  };
-
   return (
     <main className="flex-1 relative flex overflow-hidden h-screen map-bg">
       {/* Map Area */}
@@ -136,7 +117,6 @@ export default function Home() {
         <Map
           locations={filteredLocations}
           onMapClick={handleMapClick}
-          onDelete={handleDelete}
           onCheckIn={handleCheckIn}
         />
 
