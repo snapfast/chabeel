@@ -129,53 +129,106 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {locations.map((loc) => (
-          <Marker
-            key={loc.id}
-            position={[loc.lat, loc.lng]}
-            icon={createChabeelIcon()}
-          >
-            <Popup>
-              <div className="p-2 min-w-[200px]">
-                <div className="flex flex-col gap-1">
-                  {loc.status === 'active' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px] mb-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
-                    </span>
-                  )}
-                  {loc.status === 'upcoming' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px] mb-1">
-                      <span className="material-symbols-outlined text-[12px]">schedule</span> Starts in 2h
-                    </span>
-                  )}
-                  {loc.status === 'ended' && (
-                    <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px] mb-1">
-                      Ended
-                    </span>
-                  )}
-                  <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
-                  {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
-                  <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
-                    <div className="flex items-center justify-between opacity-60 italic">
-                      <span>Public • Crowd Sourced</span>
+        {locations.map((loc) => {
+          let startDate: Date;
+          if (loc.startDate) {
+            const [y, m, d] = loc.startDate.split('-').map(Number);
+            // Use UTC to avoid local timezone issues
+            startDate = new Date(Date.UTC(y, m - 1, d));
+          } else {
+            startDate = new Date(loc.createdAt);
+          }
+
+          if (isNaN(startDate.getTime())) {
+            startDate = new Date(loc.createdAt);
+          }
+
+          const endDate = new Date(startDate);
+          if (loc.durationDays) {
+            endDate.setUTCDate(startDate.getUTCDate() + loc.durationDays);
+          }
+
+          const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            timeZone: 'UTC'
+          };
+
+          return (
+            <Marker
+              key={loc.id}
+              position={[loc.lat, loc.lng]}
+              icon={createChabeelIcon()}
+            >
+              <Popup>
+                <div className="p-2 min-w-[240px]">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-1">
+                        {loc.status === 'active' && (
+                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] font-label-sm text-[10px]">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Active
+                          </span>
+                        )}
+                        {loc.status === 'upcoming' && (
+                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-[10px]">
+                            <span className="material-symbols-outlined text-[12px]">schedule</span> Upcoming
+                          </span>
+                        )}
+                        {loc.status === 'ended' && (
+                          <span className="inline-flex items-center gap-1 w-fit px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-label-sm text-[10px]">
+                            Ended
+                          </span>
+                        )}
+                        <h3 className="font-bold text-lg text-on-surface leading-tight">{loc.name}</h3>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between border-t border-outline-variant/10 pt-1">
-                      <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    {onDelete && (
-                      <button
-                        onClick={() => onDelete(loc.id)}
-                        className="text-error font-bold hover:underline self-end"
-                      >
-                        Delete Chabeel
-                      </button>
+
+                    {loc.locationName && (
+                      <div className="flex items-start gap-1.5 text-on-surface-variant">
+                        <span className="material-symbols-outlined text-[16px] mt-0.5">location_on</span>
+                        <span className="text-xs leading-relaxed">{loc.locationName}</span>
+                      </div>
                     )}
+
+                    <div className="grid grid-cols-2 gap-2 bg-surface-container-low p-2 rounded-lg border border-outline-variant/10">
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">Start Date</p>
+                        <p className="text-xs font-medium text-on-surface">{startDate.toLocaleDateString('en-US', options)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">End Date</p>
+                        <p className="text-xs font-medium text-on-surface">{endDate.toLocaleDateString('en-US', options)}</p>
+                      </div>
+                    </div>
+
+                    {loc.description && (
+                      <div className="mt-1">
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-1">Description</p>
+                        <p className="text-xs text-on-surface-variant bg-surface-container-lowest p-2 rounded-md border border-outline-variant/5 whitespace-pre-wrap">{loc.description}</p>
+                      </div>
+                    )}
+
+                    <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
+                      <div className="flex items-center justify-between opacity-60 italic">
+                        <span>Public • Crowd Sourced</span>
+                        {onDelete && (
+                          <button
+                            onClick={() => onDelete(loc.id)}
+                            className="text-error font-bold hover:underline"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
 
         {userLocation && (
           <Marker position={userLocation} icon={UserLocationIcon}>
