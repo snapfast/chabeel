@@ -76,6 +76,10 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
         (error) => {
           console.error('Error finding location:', error);
           alert('Could not get your location. Please check browser permissions.');
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
         }
       );
     }
@@ -107,9 +111,13 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
         },
         async (error) => {
           console.log('Initial geolocation failed or denied:', error.message);
+          // Fallback to IP location as a last resort
           await getIPLocation();
         },
-        { timeout: 5000 }
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0
+        }
       );
     } else {
       getIPLocation();
