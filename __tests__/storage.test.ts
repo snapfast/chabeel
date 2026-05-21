@@ -45,5 +45,4 @@ describe('Storage', () => {
       body: JSON.stringify(loc),
     }));
   });
-
 });

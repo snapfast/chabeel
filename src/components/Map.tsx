@@ -40,6 +40,7 @@ const UserLocationIcon = L.divIcon({
 interface MapProps {
   locations: ChabeelLocation[];
   onMapClick: (lat: number, lng: number) => void;
+  onCheckIn?: (id: string) => Promise<void>;
 }
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
@@ -60,9 +61,35 @@ function MapUpdater({ center }: { center: [number, number] }) {
   return null;
 }
 
-export default function Map({ locations, onMapClick }: MapProps) {
+export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [checkedInIds, setCheckedInIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('chabeel_checkins');
+    if (stored) {
+      try {
+        setCheckedInIds(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse check-ins from localStorage', e);
+      }
+    }
+  }, []);
+
+  const handleCheckInAction = async (id: string) => {
+    if (checkedInIds.includes(id)) return;
+    if (onCheckIn) {
+      try {
+        await onCheckIn(id);
+        const newCheckedInIds = [...checkedInIds, id];
+        setCheckedInIds(newCheckedInIds);
+        localStorage.setItem('chabeel_checkins', JSON.stringify(newCheckedInIds));
+      } catch (error) {
+        console.error('Check-in failed', error);
+      }
+    }
+  };
 
   const findMe = () => {
     if (navigator.geolocation) {
@@ -162,6 +189,28 @@ export default function Map({ locations, onMapClick }: MapProps) {
                   )}
                   <h3 className="font-bold text-lg text-on-surface">{loc.name}</h3>
                   {loc.description && <p className="text-sm mt-1 text-on-surface-variant">{loc.description}</p>}
+
+                  <div className="mt-3 flex items-center justify-between bg-surface-container-low p-2 rounded-lg border border-outline-variant/20">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-outline uppercase font-bold leading-tight">Check-ins</span>
+                      <span className="text-lg font-bold text-primary leading-tight">{loc.checkInCount || 0}</span>
+                    </div>
+                    <button
+                      onClick={() => handleCheckInAction(loc.id)}
+                      disabled={checkedInIds.includes(loc.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 ${
+                        checkedInIds.includes(loc.id)
+                          ? 'bg-surface-variant text-on-surface-variant cursor-default'
+                          : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-sm active:scale-95'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        {checkedInIds.includes(loc.id) ? 'check_circle' : 'person_pin_circle'}
+                      </span>
+                      {checkedInIds.includes(loc.id) ? 'Checked In' : 'Check In'}
+                    </button>
+                  </div>
+
                   <div className="mt-2 text-[10px] text-outline border-t border-outline-variant/20 pt-2 flex flex-col gap-1">
                     <div className="flex items-center justify-between opacity-60 italic">
                       <span>Public • Crowd Sourced</span>
