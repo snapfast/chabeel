@@ -65,30 +65,21 @@ function MapUpdater({ center }: { center: [number, number] }) {
 export default function Map({ locations, onMapClick, onDelete, onCheckIn }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [checkedInIds, setCheckedInIds] = useState<string[]>([]);
+  const [checkingInId, setCheckingInId] = useState<string | null>(null);
+  const [justCheckedInIds, setJustCheckedInIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const stored = localStorage.getItem('chabeel_checkins');
-    if (stored) {
-      try {
-        setCheckedInIds(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse check-ins from localStorage', e);
-      }
-    }
-  }, []);
+  const handleCheckIn = async (id: string) => {
+    if (checkingInId || justCheckedInIds.has(id)) return;
 
-  const handleCheckInAction = async (id: string) => {
-    if (checkedInIds.includes(id)) return;
-    if (onCheckIn) {
-      try {
-        await onCheckIn(id);
-        const newCheckedInIds = [...checkedInIds, id];
-        setCheckedInIds(newCheckedInIds);
-        localStorage.setItem('chabeel_checkins', JSON.stringify(newCheckedInIds));
-      } catch (error) {
-        console.error('Check-in failed', error);
-      }
+    setCheckingInId(id);
+    try {
+      await onCheckIn?.(id);
+      setJustCheckedInIds(prev => new Set(prev).add(id));
+    } catch (error) {
+      console.error('Check-in failed:', error);
+      alert('Failed to check in. Please try again.');
+    } finally {
+      setCheckingInId(null);
     }
   };
 
@@ -197,18 +188,18 @@ export default function Map({ locations, onMapClick, onDelete, onCheckIn }: MapP
                       <span className="text-lg font-bold text-primary leading-tight">{loc.checkInCount || 0}</span>
                     </div>
                     <button
-                      onClick={() => handleCheckInAction(loc.id)}
-                      disabled={checkedInIds.includes(loc.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 ${
-                        checkedInIds.includes(loc.id)
-                          ? 'bg-surface-variant text-on-surface-variant cursor-default'
-                          : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container shadow-sm active:scale-95'
-                      }`}
+                      onClick={() => handleCheckIn(loc.id)}
+                      disabled={checkingInId === loc.id || justCheckedInIds.has(loc.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 shadow-sm active:scale-95 ${
+                        justCheckedInIds.has(loc.id)
+                          ? 'bg-[#137333] text-white opacity-80 cursor-default'
+                          : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container'
+                      } disabled:opacity-70 disabled:cursor-not-allowed`}
                     >
                       <span className="material-symbols-outlined text-sm">
-                        {checkedInIds.includes(loc.id) ? 'check_circle' : 'person_pin_circle'}
+                        {justCheckedInIds.has(loc.id) ? 'check_circle' : 'person_pin_circle'}
                       </span>
-                      {checkedInIds.includes(loc.id) ? 'Checked In' : 'Check In'}
+                      {checkingInId === loc.id ? 'Checking...' : justCheckedInIds.has(loc.id) ? 'Checked In' : 'Check In'}
                     </button>
                   </div>
 

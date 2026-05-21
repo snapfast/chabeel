@@ -150,8 +150,8 @@ export default function Home() {
         </div>
 
         {/* Floating Footer for Desktop Map View */}
-        <div className="hidden md:block absolute bottom-sm right-sm z-[1000]">
-          <div className="bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/30 text-outline text-[12px] flex gap-4 shadow-sm">
+        <div className="hidden md:block absolute bottom-sm right-sm z-[1000] pointer-events-none">
+          <div className="bg-surface-container-lowest/80 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant/30 text-outline text-[12px] flex gap-4 shadow-sm pointer-events-auto">
             <span>Maintained by Madhup Tiwari (7888709084)</span>
           </div>
         </div>
