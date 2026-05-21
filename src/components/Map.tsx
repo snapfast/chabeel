@@ -2,7 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChabeelLocation } from '@/types';
 
 // Fix for default marker icons in Leaflet with Next.js
@@ -44,9 +44,36 @@ interface MapProps {
 }
 
 function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
+  const [mouseDownPos, setMouseDownPos] = useState<L.Point | null>(null);
+  const lastTriggerTime = useRef<number>(0);
+
+  const triggerClick = (latlng: L.LatLng) => {
+    const now = Date.now();
+    // Debounce to prevent double-triggering (e.g. from both mouseup and contextmenu)
+    if (now - lastTriggerTime.current > 500) {
+      onMapClick(latlng.lat, latlng.lng);
+      lastTriggerTime.current = now;
+    }
+  };
+
   useMapEvents({
-    click(e) {
-      onMapClick(e.latlng.lat, e.latlng.lng);
+    mousedown(e) {
+      setMouseDownPos(e.containerPoint);
+    },
+    mouseup(e) {
+      if (mouseDownPos) {
+        const dist = mouseDownPos.distanceTo(e.containerPoint);
+        // If moved less than 5 pixels, consider it a click
+        // This helps on mobile where standard click events can be unreliable
+        if (dist < 5) {
+          triggerClick(e.latlng);
+        }
+      }
+      setMouseDownPos(null);
+    },
+    contextmenu(e) {
+      // Also handle long-press/right-click
+      triggerClick(e.latlng);
     },
   });
 
@@ -123,6 +150,7 @@ export default function Map({ locations, onMapClick, onDelete }: MapProps) {
         zoom={13}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
+        tap={false}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
