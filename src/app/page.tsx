@@ -21,7 +21,12 @@ export default function Home() {
     lng: 0,
     locationName: '',
     durationDays: 1,
-    startDate: new Date().toISOString().split('T')[0]
+    startDate: new Date().toISOString().split('T')[0],
+    operatingHours: '',
+    contactName: '',
+    contactPhone: '',
+    serviceType: 'Water Only',
+    source: 'web'
   });
 
   useEffect(() => {
@@ -44,10 +49,7 @@ export default function Home() {
   };
 
   const filteredLocations = useMemo<ChabeelLocation[]>(() => {
-    return locations.map((loc, i) => ({
-      ...loc,
-      status: (i % 3 === 0 ? 'active' : i % 3 === 1 ? 'upcoming' : 'ended') as 'active' | 'upcoming' | 'ended',
-    }));
+    return locations;
   }, [locations]);
 
   const handleMapClick = async (lat: number, lng: number) => {
@@ -95,7 +97,12 @@ export default function Home() {
           lng: 0,
           locationName: '',
           durationDays: 1,
-          startDate: new Date().toISOString().split('T')[0]
+          startDate: new Date().toISOString().split('T')[0],
+          operatingHours: '',
+          contactName: '',
+          contactPhone: '',
+          serviceType: 'Water Only',
+          source: 'web'
         });
         fetchLocations();
       }
@@ -107,25 +114,6 @@ export default function Home() {
     }
   };
 
-  const handleCheckIn = async (id: string) => {
-    try {
-      const res = await fetch(`/api/locations/${id}/checkin`, {
-        method: 'POST',
-      });
-      if (res.ok) {
-        // Optionally optimistic update or just refresh
-        setLocations(prev => prev.map(loc =>
-          loc.id === id ? { ...loc, checkInCount: (loc.checkInCount || 0) + 1 } : loc
-        ));
-      } else {
-        throw new Error('Failed to check in');
-      }
-    } catch (error) {
-      console.error('Failed to check in', error);
-      throw error;
-    }
-  };
-
   return (
     <main className="flex-1 relative flex overflow-hidden h-screen map-bg">
       {/* Map Area */}
@@ -133,7 +121,6 @@ export default function Home() {
         <Map
           locations={filteredLocations}
           onMapClick={handleMapClick}
-          onCheckIn={handleCheckIn}
         />
 
         {/* Branding Tile */}
@@ -171,7 +158,7 @@ export default function Home() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 relative">
+          <form onSubmit={handleSubmit} className="space-y-3 relative">
             {isSaving && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center rounded-md">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
@@ -179,67 +166,127 @@ export default function Home() {
               </div>
             )}
             <div>
-              <label htmlFor="chabeel-name" className="block text-sm font-medium text-on-surface-variant mb-1">Suggestive Chabeel Name</label>
+              <label htmlFor="chabeel-name" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Chabeel Name</label>
               <input
                 id="chabeel-name"
                 required
                 type="text"
-                placeholder="e.g. Gurudwara Sector 34 Chabeel"
-                className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                placeholder="e.g. Gurudwara Sector 34"
+                className="w-full p-2 text-base border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
-            <div>
-              <label htmlFor="chabeel-address" className="block text-sm font-medium text-on-surface-variant mb-1">Location Address</label>
-              <input
-                id="chabeel-address"
-                required
-                type="text"
-                placeholder="Address"
-                className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
-                value={formData.locationName}
-                onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
-              />
+
+            <div className="bg-surface-container-low p-2.5 rounded-lg border border-outline-variant/30">
+              <label className="block text-[9px] uppercase font-bold text-outline mb-0.5">Detected Address</label>
+              <p className="text-xs text-on-surface-variant leading-tight line-clamp-2">
+                {formData.locationName || 'Pinpoint location on map'}
+              </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label htmlFor="chabeel-start-date" className="block text-sm font-medium text-on-surface-variant mb-1">Start Date</label>
+                <label htmlFor="chabeel-start-date" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Start Date</label>
                 <input
                   id="chabeel-start-date"
                   required
                   type="date"
-                  className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                 />
               </div>
               <div>
-                <label htmlFor="chabeel-duration" className="block text-sm font-medium text-on-surface-variant mb-1">Duration (Days)</label>
+                <label htmlFor="chabeel-duration" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Duration</label>
+                <div className="relative">
+                  <input
+                    id="chabeel-duration"
+                    required
+                    type="number"
+                    min="1"
+                    className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none pr-10"
+                    value={formData.durationDays}
+                    onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-outline pointer-events-none">DAYS</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="chabeel-hours" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Hours</label>
                 <input
-                  id="chabeel-duration"
-                  required
-                  type="number"
-                  min="1"
-                  className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
-                  value={formData.durationDays}
-                  onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
+                  id="chabeel-hours"
+                  type="text"
+                  placeholder="10AM - 5PM"
+                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  value={formData.operatingHours}
+                  onChange={(e) => setFormData({ ...formData, operatingHours: e.target.value })}
+                />
+              </div>
+              <div>
+                <label htmlFor="chabeel-service" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Service</label>
+                <select
+                  id="chabeel-service"
+                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white appearance-none"
+                  style={{backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'M19 9l-7 7-7-7\' /%3E%3C/svg%3E")'}}
+                  value={formData.serviceType}
+                  onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                >
+                  <option value="Water Only">Water Only</option>
+                  <option value="Sweet Water">Sweet Water</option>
+                  <option value="Food/Langar">Food/Langar</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label htmlFor="chabeel-contact-name" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Contact Name</label>
+                <input
+                  id="chabeel-contact-name"
+                  type="text"
+                  placeholder="Optional"
+                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  value={formData.contactName}
+                  onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+                />
+              </div>
+              <div>
+                <label htmlFor="chabeel-contact-phone" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Phone</label>
+                <input
+                  id="chabeel-contact-phone"
+                  type="tel"
+                  placeholder="Optional"
+                  className="w-full p-1.5 text-sm border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                  value={formData.contactPhone}
+                  onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                 />
               </div>
             </div>
+
             <div>
-              <label htmlFor="chabeel-desc" className="block text-sm font-medium text-on-surface-variant mb-1">Description (Optional)</label>
+              <label htmlFor="chabeel-desc" className="block text-[10px] font-bold text-outline uppercase tracking-wider mb-1">Notes</label>
               <textarea
                 id="chabeel-desc"
-                placeholder="What time? Any specifics?"
-                className="w-full p-2 border border-outline-variant rounded-md h-32 focus:ring-2 focus:ring-primary outline-none"
+                placeholder="Any specifics?"
+                className="w-full p-2 text-sm border border-outline-variant rounded-lg h-16 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
-            <div className="bg-surface-container-low p-3 rounded-md border border-dashed border-outline-variant">
-              <p className="text-[10px] text-outline uppercase font-bold mb-1">Selected Location</p>
-              <p className="text-xs font-mono text-on-surface-variant">{formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}</p>
+            <div className="bg-surface-container-low p-3 rounded-md border border-dashed border-outline-variant flex justify-between items-center">
+              <div>
+                <p className="text-[10px] text-outline uppercase font-bold mb-0.5">Coordinates</p>
+                <p className="text-xs font-mono text-on-surface-variant">{formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-outline uppercase font-bold mb-0.5">Source</p>
+                <p className="text-[10px] font-bold text-primary uppercase">Web App</p>
+              </div>
             </div>
 
             <div className="flex items-start gap-3 py-2">
