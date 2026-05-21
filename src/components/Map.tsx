@@ -215,15 +215,30 @@ export default function Map({ locations, onMapClick, onCheckIn }: MapProps) {
                     <div className="flex items-center justify-between opacity-60 italic">
                       <span>Public • Crowd Sourced</span>
                     </div>
-                    <div className="flex items-center justify-between border-t border-outline-variant/10 pt-1">
-                      <span>Added: {new Date(loc.createdAt).toLocaleDateString()}</span>
+
+                    {loc.locationName && (
+                      <div className="flex items-start gap-1.5 text-on-surface-variant">
+                        <span className="material-symbols-outlined text-[16px] mt-0.5">location_on</span>
+                        <span className="text-xs leading-relaxed">{loc.locationName}</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2 bg-surface-container-low p-2 rounded-lg border border-outline-variant/10">
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">Start Date</p>
+                        <p className="text-xs font-medium text-on-surface">{startDate.toLocaleDateString('en-US', options)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider">End Date</p>
+                        <p className="text-xs font-medium text-on-surface">{endDate.toLocaleDateString('en-US', options)}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
 
         {userLocation && (
           <Marker position={userLocation} icon={UserLocationIcon}>

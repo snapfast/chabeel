@@ -14,7 +14,15 @@ export default function Home() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [formData, setFormData] = useState({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    lat: 0,
+    lng: 0,
+    locationName: '',
+    durationDays: 1,
+    startDate: new Date().toISOString().split('T')[0]
+  });
 
   useEffect(() => {
     fetchLocations();
@@ -80,7 +88,15 @@ export default function Home() {
       if (res.ok) {
         setShowAddForm(false);
         setIsConfirmed(false);
-        setFormData({ name: '', description: '', lat: 0, lng: 0, locationName: '', durationDays: 1 });
+        setFormData({
+          name: '',
+          description: '',
+          lat: 0,
+          lng: 0,
+          locationName: '',
+          durationDays: 1,
+          startDate: new Date().toISOString().split('T')[0]
+        });
         fetchLocations();
       }
     } catch (error) {
@@ -186,17 +202,30 @@ export default function Home() {
                 onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
               />
             </div>
-            <div>
-              <label htmlFor="chabeel-duration" className="block text-sm font-medium text-on-surface-variant mb-1">Timing / Duration (Days)</label>
-              <input
-                id="chabeel-duration"
-                required
-                type="number"
-                min="1"
-                className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
-                value={formData.durationDays}
-                onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="chabeel-start-date" className="block text-sm font-medium text-on-surface-variant mb-1">Start Date</label>
+                <input
+                  id="chabeel-start-date"
+                  required
+                  type="date"
+                  className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                  value={formData.startDate}
+                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                />
+              </div>
+              <div>
+                <label htmlFor="chabeel-duration" className="block text-sm font-medium text-on-surface-variant mb-1">Duration (Days)</label>
+                <input
+                  id="chabeel-duration"
+                  required
+                  type="number"
+                  min="1"
+                  className="w-full p-2 border border-outline-variant rounded-md focus:ring-2 focus:ring-primary outline-none"
+                  value={formData.durationDays}
+                  onChange={(e) => setFormData({ ...formData, durationDays: parseInt(e.target.value) || 1 })}
+                />
+              </div>
             </div>
             <div>
               <label htmlFor="chabeel-desc" className="block text-sm font-medium text-on-surface-variant mb-1">Description (Optional)</label>

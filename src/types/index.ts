@@ -19,4 +19,5 @@ export interface CreateChabeelInput {
   lng: number;
   locationName?: string;
   durationDays?: number;
+  startDate?: string;
 }
