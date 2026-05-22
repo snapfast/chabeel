@@ -21,7 +21,7 @@ describe('Storage', () => {
     });
 
     const locations = await getLocations();
-    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, { cache: 'no-store' });
+    expect(global.fetch).toHaveBeenCalledWith(BACKEND_URL, { next: { revalidate: 60 } });
     expect(locations).toEqual(mockData);
   });
 
