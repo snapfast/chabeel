@@ -77,6 +77,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
   const [zoom, setZoom] = useState(13);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
   // Initialize Leaflet icons on mount
   useEffect(() => {
@@ -85,16 +86,19 @@ export default function Map({ locations, onMapClick }: MapProps) {
 
   const findMe = () => {
     if (navigator.geolocation) {
+      setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(newPos);
           setCenter(newPos);
           setZoom(16);
+          setIsLocating(false);
         },
         (error) => {
           console.error('Error finding location:', error);
           alert('Could not get your location. Please check browser permissions.');
+          setIsLocating(false);
         },
         {
           enableHighAccuracy: true,
@@ -310,11 +314,14 @@ export default function Map({ locations, onMapClick }: MapProps) {
           e.stopPropagation();
           findMe();
         }}
-        className="absolute bottom-6 left-6 z-[1000] bg-surface p-3 rounded-full shadow-lg border border-outline-variant/30 hover:bg-surface-container-low transition-colors text-primary"
+        disabled={isLocating}
+        className="absolute bottom-6 left-6 z-[1000] bg-surface p-3 rounded-full shadow-lg border border-outline-variant/30 hover:bg-surface-container-low transition-colors text-primary disabled:opacity-50 disabled:cursor-not-allowed"
         title="Find my location"
-        aria-label="Locate Me"
+        aria-label={isLocating ? "Locating..." : "Locate Me"}
       >
-        <span className="material-symbols-outlined">my_location</span>
+        <span className={`material-symbols-outlined ${isLocating ? 'animate-spin' : ''}`}>
+          {isLocating ? 'progress_activity' : 'my_location'}
+        </span>
       </button>
     </div>
   );

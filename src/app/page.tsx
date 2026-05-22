@@ -153,6 +153,7 @@ export default function Home() {
             <button
               onClick={() => setShowAddForm(false)}
               className="p-2 hover:bg-surface-container rounded-full transition-colors"
+              aria-label="Close form"
             >
               <span className="material-symbols-outlined">close</span>
             </button>
@@ -170,6 +171,7 @@ export default function Home() {
               <input
                 id="chabeel-name"
                 required
+                autoFocus
                 type="text"
                 placeholder="e.g. Gurudwara Sector 34"
                 className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-400 font-bold"
