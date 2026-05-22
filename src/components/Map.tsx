@@ -42,26 +42,42 @@ interface MapProps {
   onMapClick: (lat: number, lng: number) => void;
 }
 
-function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
+function MapEvents({
+  onMapClick,
+  onZoomChange,
+  onCenterChange
+}: {
+  onMapClick: (lat: number, lng: number) => void;
+  onZoomChange: (zoom: number) => void;
+  onCenterChange: (center: [number, number]) => void;
+}) {
+  const map = useMapEvents({
     click(e) {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
+    zoomend() {
+      onZoomChange(map.getZoom());
+    },
+    moveend() {
+      const center = map.getCenter();
+      onCenterChange([center.lat, center.lng]);
+    }
   });
 
   return null;
 }
 
-function MapUpdater({ center }: { center: [number, number] }) {
+function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
   return null;
 }
 
 export default function Map({ locations, onMapClick }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
+  const [zoom, setZoom] = useState(13);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   const findMe = () => {
@@ -71,6 +87,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
           const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(newPos);
           setCenter(newPos);
+          setZoom(16);
         },
         (error) => {
           console.error('Error finding location:', error);
@@ -107,11 +124,13 @@ export default function Map({ locations, onMapClick }: MapProps) {
           const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setCenter(newPos);
           setUserLocation(newPos);
+          setZoom(16);
         },
         async (error) => {
           console.log('Initial geolocation failed or denied:', error.message);
           // Fallback to IP location as a last resort
           await getIPLocation();
+          setZoom(13); // Keep it wider for IP location as it's less accurate
         },
         {
           enableHighAccuracy: true,
@@ -127,7 +146,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
     <div className="h-full w-full relative">
       <MapContainer
         center={center}
-        zoom={13}
+        zoom={zoom}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
       >
@@ -141,6 +160,12 @@ export default function Map({ locations, onMapClick }: MapProps) {
             key={loc.id}
             position={[loc.lat, loc.lng]}
             icon={createChabeelIcon()}
+            eventHandlers={{
+              click: () => {
+                setCenter([loc.lat, loc.lng]);
+                setZoom(prev => Math.max(prev, 16));
+              },
+            }}
           >
             <Popup>
               <div className="p-1 min-w-[280px]">
@@ -257,8 +282,16 @@ export default function Map({ locations, onMapClick }: MapProps) {
           </Marker>
         )}
 
-        <MapEvents onMapClick={onMapClick} />
-        <MapUpdater center={center} />
+        <MapEvents
+          onMapClick={(lat, lng) => {
+            setCenter([lat, lng]);
+            setZoom(prev => Math.max(prev, 16));
+            onMapClick(lat, lng);
+          }}
+          onZoomChange={(newZoom) => setZoom(newZoom)}
+          onCenterChange={(newCenter) => setCenter(newCenter)}
+        />
+        <MapUpdater center={center} zoom={zoom} />
       </MapContainer>
 
       {/* Locate Me Button Overlay */}
