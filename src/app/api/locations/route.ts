@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getLocations, saveLocation } from '@/lib/storage';
 import { ChabeelLocation, CreateChabeelInput } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
 import { calculateStatus } from '@/lib/utils';
+import { randomUUID } from 'node:crypto';
 
 export async function GET() {
   try {
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     const newLocation: ChabeelLocation = {
-      id: uuidv4(),
+      id: randomUUID(),
       name: body.name,
       description: body.description,
       lat,
