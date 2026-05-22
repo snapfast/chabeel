@@ -4,7 +4,7 @@ const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyOhkO-K9w-ErN47ZSY
 
 export async function getLocations(): Promise<ChabeelLocation[]> {
   try {
-    const response = await fetch(BACKEND_URL, { cache: 'no-store' });
+    const response = await fetch(BACKEND_URL, { next: { revalidate: 60 } });
     if (!response.ok) {
       throw new Error(`Failed to fetch locations: ${response.statusText}`);
     }
