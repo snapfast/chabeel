@@ -143,27 +143,27 @@ export default function Map({ locations, onMapClick }: MapProps) {
             icon={createChabeelIcon()}
           >
             <Popup>
-              <div className="p-1 min-w-[220px]">
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-col gap-0.5">
-                    <h3 className="font-bold text-lg text-on-surface leading-tight">{loc.name}</h3>
+              <div className="p-1 min-w-[280px]">
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-bold text-xl text-black leading-tight">{loc.name}</h3>
                     {loc.locationName && (
-                      <div className="flex items-start gap-1 text-on-surface-variant opacity-80">
-                        <span className="material-symbols-outlined text-[14px] mt-0.5">location_on</span>
-                        <span className="text-[10px] leading-tight">{loc.locationName}</span>
+                      <div className="flex items-start gap-1 text-black">
+                        <span className="material-symbols-outlined text-[16px] mt-0.5">location_on</span>
+                        <span className="text-sm leading-tight font-medium">{loc.locationName}</span>
                       </div>
                     )}
                   </div>
 
                   {loc.serviceType && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">
-                        <span className="material-symbols-outlined text-[12px]">restaurant</span>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border-2 border-black bg-white text-black text-xs font-bold uppercase tracking-tight">
+                        <span className="material-symbols-outlined text-[14px]">restaurant</span>
                         {loc.serviceType}
                       </span>
                       {loc.isVerified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-tight">
-                          <span className="material-symbols-outlined text-[12px]">verified</span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border-2 border-black bg-white text-black text-xs font-bold uppercase tracking-tight">
+                          <span className="material-symbols-outlined text-[14px]">verified</span>
                           Verified
                         </span>
                       )}
@@ -171,61 +171,61 @@ export default function Map({ locations, onMapClick }: MapProps) {
                   )}
 
                   {loc.description && (
-                    <p className="text-xs text-on-surface-variant whitespace-pre-wrap line-clamp-2 bg-surface-container-lowest p-2 rounded-md border border-outline-variant/10">
+                    <p className="text-sm text-black whitespace-pre-wrap p-3 rounded-md border-2 border-black bg-white font-medium">
                       {loc.description}
                     </p>
                   )}
 
-                  <div className="grid grid-cols-2 gap-3 bg-surface-container-low p-3 rounded-xl border border-outline-variant/20">
-                    <div className="space-y-2.5">
+                  <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="space-y-3">
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Status & Time</p>
-                        <div className="flex flex-col gap-1">
+                        <p className="text-xs uppercase font-bold text-black tracking-wider mb-1">Status & Time</p>
+                        <div className="flex flex-col gap-1.5">
                           {loc.status === "active" && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[#E6F4EA] text-[#137333] text-[9px] font-bold uppercase w-fit">
-                              <span className="w-1 h-1 rounded-full bg-[#137333]"></span> Active
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border-2 border-black bg-white text-black text-xs font-bold uppercase w-fit">
+                              <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span> Active
                             </span>
                           )}
                           {loc.status === "upcoming" && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant text-[9px] font-bold uppercase w-fit">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border-2 border-black bg-white text-black text-xs font-bold uppercase w-fit">
                               Upcoming
                             </span>
                           )}
                           {loc.status === "ended" && (
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-[9px] font-bold uppercase w-fit">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border-2 border-black bg-white text-black text-xs font-bold uppercase w-fit">
                               Ended
                             </span>
                           )}
-                          <span className="text-[10px] font-medium text-on-surface flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[12px]">schedule</span>
+                          <span className="text-sm font-bold text-black flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[14px]">schedule</span>
                             {loc.operatingHours || 'Not specified'}
                           </span>
                         </div>
                       </div>
 
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Timeline</p>
+                        <p className="text-xs uppercase font-bold text-black tracking-wider mb-1">Timeline</p>
                         <div className="flex flex-col leading-tight">
-                          <span className="text-[11px] font-medium text-on-surface">
+                          <span className="text-sm font-bold text-black">
                             {loc.startDate ? new Date(loc.startDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "N/A"}
                           </span>
-                          <span className="text-[9px] text-on-surface-variant uppercase">
+                          <span className="text-xs text-black font-bold uppercase">
                             {loc.durationDays} {loc.durationDays === 1 ? "Day" : "Days"}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2.5 border-l border-outline-variant/20 pl-3">
+                    <div className="space-y-3 border-l-2 border-black pl-4">
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Contact</p>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[10px] font-bold text-on-surface truncate">
+                        <p className="text-xs uppercase font-bold text-black tracking-wider mb-1">Contact</p>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-black text-black truncate">
                             {loc.contactName || 'Anonymous'}
                           </span>
                           {loc.contactPhone && (
-                            <a href={`tel:${loc.contactPhone}`} className="text-[10px] text-primary hover:underline flex items-center gap-0.5">
-                              <span className="material-symbols-outlined text-[12px]">call</span>
+                            <a href={`tel:${loc.contactPhone}`} className="text-sm text-black underline font-black flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">call</span>
                               {loc.contactPhone}
                             </a>
                           )}
@@ -233,15 +233,15 @@ export default function Map({ locations, onMapClick }: MapProps) {
                       </div>
 
                       <div>
-                        <p className="text-[9px] uppercase font-bold text-outline tracking-wider mb-0.5">Source</p>
-                        <span className="text-[10px] font-medium text-on-surface-variant uppercase">
+                        <p className="text-xs uppercase font-bold text-black tracking-wider mb-1">Source</p>
+                        <span className="text-sm font-bold text-black uppercase">
                           {loc.source || 'Community'}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center text-[8px] text-outline uppercase font-bold tracking-tighter opacity-50 px-1">
+                  <div className="flex justify-between items-center text-[10px] text-black uppercase font-black tracking-tighter px-1 border-t border-black/10 pt-2">
                     <span>Public • Crowd Sourced</span>
                     <span>{loc.id.slice(0, 8)}</span>
                   </div>
