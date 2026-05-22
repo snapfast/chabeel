@@ -13,17 +13,15 @@ const DefaultIcon = L.icon({
   iconAnchor: [12, 41],
 });
 
-const createChabeelIcon = () => {
-  return L.divIcon({
-    className: 'custom-chabeel-icon',
-    html: `<div class="relative flex items-end justify-center group w-[60px] h-[60px]">
-      <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;">location_on</span>
-    </div>`,
-    iconSize: [60, 60],
-    iconAnchor: [30, 60],
-    popupAnchor: [0, -55]
-  });
-};
+const ChabeelIcon = L.divIcon({
+  className: 'custom-chabeel-icon',
+  html: `<div class="relative flex items-end justify-center group w-[60px] h-[60px]">
+    <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;">location_on</span>
+  </div>`,
+  iconSize: [60, 60],
+  iconAnchor: [30, 60],
+  popupAnchor: [0, -55]
+});
 
 const UserLocationIcon = L.divIcon({
   className: 'user-location-marker',
@@ -166,7 +164,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
           <Marker
             key={loc.id}
             position={[loc.lat, loc.lng]}
-            icon={createChabeelIcon()}
+            icon={ChabeelIcon}
             eventHandlers={{
               click: () => {
                 setCenter([loc.lat, loc.lng]);
