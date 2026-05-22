@@ -13,8 +13,6 @@ const DefaultIcon = L.icon({
   iconAnchor: [12, 41],
 });
 
-L.Marker.prototype.options.icon = DefaultIcon;
-
 const createChabeelIcon = () => {
   return L.divIcon({
     className: 'custom-chabeel-icon',
@@ -42,28 +40,48 @@ interface MapProps {
   onMapClick: (lat: number, lng: number) => void;
 }
 
-function MapEvents({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
-  useMapEvents({
+function MapEvents({
+  onMapClick,
+  onZoomChange,
+  onCenterChange
+}: {
+  onMapClick: (lat: number, lng: number) => void;
+  onZoomChange: (zoom: number) => void;
+  onCenterChange: (center: [number, number]) => void;
+}) {
+  const map = useMapEvents({
     click(e) {
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
+    zoomend() {
+      onZoomChange(map.getZoom());
+    },
+    moveend() {
+      const center = map.getCenter();
+      onCenterChange([center.lat, center.lng]);
+    }
   });
 
   return null;
 }
 
-function MapUpdater({ center }: { center: [number, number] }) {
+function MapUpdater({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
   useEffect(() => {
-    map.setView(center, map.getZoom());
-  }, [center, map]);
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
   return null;
 }
 
 export default function Map({ locations, onMapClick }: MapProps) {
   const [center, setCenter] = useState<[number, number]>([30.7333, 76.7794]); // Default to Chandigarh
+  const [zoom, setZoom] = useState(13);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [pendingClick, setPendingClick] = useState<[number, number] | null>(null);
+
+  // Initialize Leaflet icons on mount
+  useEffect(() => {
+    L.Marker.prototype.options.icon = DefaultIcon;
+  }, []);
 
   const findMe = () => {
     if (navigator.geolocation) {
@@ -72,6 +90,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
           const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setUserLocation(newPos);
           setCenter(newPos);
+          setZoom(16);
         },
         (error) => {
           console.error('Error finding location:', error);
@@ -108,11 +127,13 @@ export default function Map({ locations, onMapClick }: MapProps) {
           const newPos: [number, number] = [position.coords.latitude, position.coords.longitude];
           setCenter(newPos);
           setUserLocation(newPos);
+          setZoom(16);
         },
         async (error) => {
           console.log('Initial geolocation failed or denied:', error.message);
           // Fallback to IP location as a last resort
           await getIPLocation();
+          setZoom(13); // Keep it wider for IP location as it's less accurate
         },
         {
           enableHighAccuracy: true,
@@ -128,7 +149,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
     <div className="h-full w-full relative">
       <MapContainer
         center={center}
-        zoom={13}
+        zoom={zoom}
         scrollWheelZoom={true}
         className="h-full w-full z-0"
       >
@@ -142,6 +163,12 @@ export default function Map({ locations, onMapClick }: MapProps) {
             key={loc.id}
             position={[loc.lat, loc.lng]}
             icon={createChabeelIcon()}
+            eventHandlers={{
+              click: () => {
+                setCenter([loc.lat, loc.lng]);
+                setZoom(prev => Math.max(prev, 16));
+              },
+            }}
           >
             <Popup>
               <div className="p-1 min-w-[280px]">
@@ -258,40 +285,23 @@ export default function Map({ locations, onMapClick }: MapProps) {
           </Marker>
         )}
 
-        {pendingClick && (
-          <Popup
-            position={pendingClick}
-            eventHandlers={{
-              remove: () => setPendingClick(null)
-            }}
-          >
-            <div className="p-2 min-w-[200px]">
-              <p className="text-sm font-black text-black mb-3 uppercase tracking-tight leading-tight">
-                Do you want to add a chabeel spot?
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    onMapClick(pendingClick[0], pendingClick[1]);
-                    setPendingClick(null);
-                  }}
-                  className="flex-1 bg-black text-white font-black py-2 rounded border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] hover:translate-y-[1px] hover:shadow-none transition-all text-xs uppercase tracking-widest"
-                >
-                  Yes
-                </button>
-                <button
-                  onClick={() => setPendingClick(null)}
-                  className="flex-1 bg-white text-black font-black py-2 rounded border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-y-[1px] hover:shadow-none transition-all text-xs uppercase tracking-widest"
-                >
-                  No
-                </button>
-              </div>
-            </div>
-          </Popup>
-        )}
-
-        <MapEvents onMapClick={(lat, lng) => setPendingClick([lat, lng])} />
-        <MapUpdater center={center} />
+        <MapEvents
+          onMapClick={(lat, lng) => {
+            setCenter([lat, lng]);
+            setZoom(prev => Math.max(prev, 16));
+            onMapClick(lat, lng);
+          }}
+          onZoomChange={(newZoom) => {
+            setZoom((prev) => (prev !== newZoom ? newZoom : prev));
+          }}
+          onCenterChange={(newCenter) => {
+            setCenter((prev) => {
+              if (prev[0] === newCenter[0] && prev[1] === newCenter[1]) return prev;
+              return newCenter;
+            });
+          }}
+        />
+        <MapUpdater center={center} zoom={zoom} />
       </MapContainer>
 
       {/* Locate Me Button Overlay */}
