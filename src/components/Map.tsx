@@ -131,8 +131,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
           setUserLocation(newPos);
           setZoom(16);
         },
-        async (error) => {
-          console.log('Initial geolocation failed or denied:', error.message);
+        async () => {
           // Fallback to IP location as a last resort
           await getIPLocation();
           setZoom(13); // Keep it wider for IP location as it's less accurate
