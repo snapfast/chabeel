@@ -164,7 +164,6 @@ export default function Map({ locations, onMapClick }: MapProps) {
             key={loc.id}
             position={[loc.lat, loc.lng]}
             icon={ChabeelIcon}
-            title={loc.name}
             eventHandlers={{
               click: () => {
                 setCenter([loc.lat, loc.lng]);
@@ -254,10 +253,10 @@ export default function Map({ locations, onMapClick }: MapProps) {
                             {loc.contactName || 'Anonymous'}
                           </span>
                           {loc.contactPhone && (
-                            <span className="text-[11px] font-bold text-black flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[14px]">phone_enabled</span>
+                            <a href={`tel:${loc.contactPhone}`} className="text-sm text-black underline font-black flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">call</span>
                               {loc.contactPhone}
-                            </span>
+                            </a>
                           )}
                         </div>
                       </div>
@@ -269,27 +268,6 @@ export default function Map({ locations, onMapClick }: MapProps) {
                         </span>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2 pt-1">
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full bg-black text-white font-black py-2.5 rounded-lg hover:bg-gray-800 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,0.3)] flex items-center justify-center gap-2 uppercase tracking-widest text-[11px] no-underline"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">directions</span>
-                      Navigate
-                    </a>
-                    {loc.contactPhone && (
-                      <a
-                        href={`tel:${loc.contactPhone}`}
-                        className="w-full bg-white text-black border-2 border-black font-black py-2 rounded-lg hover:bg-gray-50 transition-all shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 uppercase tracking-widest text-[11px] no-underline"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">call</span>
-                        Call Organizer
-                      </a>
-                    )}
                   </div>
 
                   <div className="flex justify-between items-center text-[10px] text-black uppercase font-black tracking-tighter px-1 border-t border-black/10 pt-2">
