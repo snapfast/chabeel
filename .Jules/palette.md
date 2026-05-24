@@ -1,7 +1,3 @@
 ## 2025-05-22 - [UX/Accessibility Improvements for Map and Form]
 **Learning:** For interactive maps (Leaflet), a "Locate Me" button without a loading state can lead to user frustration or multiple redundant requests if the browser's geolocation prompt is slow. Providing an `isLocating` state with a spinning icon and `aria-label` provides immediate feedback. For forms triggered by map clicks, `autoFocus` on the primary input and clear `aria-label` on close buttons significantly improve the experience for both mouse and screen reader users.
 **Action:** Always include async feedback (loading spinners) for geolocation and ensure map-triggered modals/overlays manage focus and provide accessible exit paths.
-
-## 2025-05-24 - [Actionable Map Popups and Neo-Brutalist Affordance]
-**Learning:** In a map-centric application, surface-level markers are only half the experience. The interaction within the marker's popup should minimize friction for high-intent actions like navigating or contacting. Using large, high-contrast buttons with "neo-brutalist" shadows (e.g., `shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]`) provides strong affordance and matches the visual language of the app, making the primary actions unmistakable.
-**Action:** Prioritize actionable buttons (Call, Navigate) over text links in map popups and ensure they use high-contrast styling to stand out against detailed map backgrounds.

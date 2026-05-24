@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getLocations, saveLocation } from '@/lib/storage';
 import { ChabeelLocation } from '@/types';
-import { v4 as uuidv4 } from 'uuid';
 import { calculateStatus } from '@/lib/utils';
 import { z } from 'zod';
+import { randomUUID } from 'node:crypto';
 
 // Define validation schema for input
 const createChabeelSchema = z.object({
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     let body;
     try {
       body = await request.json();
-    } catch (e) {
+    } catch {
       return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
     }
 
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
     const validatedData = validation.data;
 
     const newLocation: ChabeelLocation = {
-      id: uuidv4(),
+      id: randomUUID(),
       name: validatedData.name,
       description: validatedData.description,
       lat: validatedData.lat,
