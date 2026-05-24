@@ -1,3 +1,7 @@
 ## 2025-05-22 - [UX/Accessibility Improvements for Map and Form]
 **Learning:** For interactive maps (Leaflet), a "Locate Me" button without a loading state can lead to user frustration or multiple redundant requests if the browser's geolocation prompt is slow. Providing an `isLocating` state with a spinning icon and `aria-label` provides immediate feedback. For forms triggered by map clicks, `autoFocus` on the primary input and clear `aria-label` on close buttons significantly improve the experience for both mouse and screen reader users.
 **Action:** Always include async feedback (loading spinners) for geolocation and ensure map-triggered modals/overlays manage focus and provide accessible exit paths.
+
+## 2026-05-24 - [Ligature-based Icon Accessibility and Live Regions]
+**Learning:** Material Symbols/Icons that use ligatures (e.g., `<span class="material-symbols-outlined">close</span>`) will have the ligature text "close" read by screen readers unless `aria-hidden="true"` is applied. For dynamic UI updates triggered by map interactions (like reverse geocoding), `aria-live="polite"` ensures these updates are announced without interrupting the user. Character counters provide essential guardrails for backend validation limits that might otherwise result in silent failures.
+**Action:** Always apply `aria-hidden="true"` to ligature-based icons. Use `aria-live` for asynchronous data updates like address detection. Include visible character counters for fields with strict length constraints.
