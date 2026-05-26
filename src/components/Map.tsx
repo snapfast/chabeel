@@ -16,7 +16,7 @@ const DefaultIcon = L.icon({
 const ChabeelIcon = L.divIcon({
   className: 'custom-chabeel-icon',
   html: `<div class="relative flex items-end justify-center group w-[60px] h-[60px]">
-    <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;">location_on</span>
+    <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;" aria-hidden="true">location_on</span>
   </div>`,
   iconSize: [60, 60],
   iconAnchor: [30, 60],
@@ -178,7 +178,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
                     <h3 className="font-bold text-xl text-black leading-tight">{loc.name}</h3>
                     {loc.locationName && (
                       <div className="flex items-start gap-1 text-black">
-                        <span className="material-symbols-outlined text-[16px] mt-0.5">location_on</span>
+                        <span className="material-symbols-outlined text-[16px] mt-0.5" aria-hidden="true">location_on</span>
                         <span className="text-sm leading-tight font-medium">{loc.locationName}</span>
                       </div>
                     )}
@@ -187,12 +187,12 @@ export default function Map({ locations, onMapClick }: MapProps) {
                   {loc.serviceType && (
                     <div className="flex items-center gap-2">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border-2 border-black bg-white text-black text-xs font-bold uppercase tracking-tight">
-                        <span className="material-symbols-outlined text-[14px]">restaurant</span>
+                        <span className="material-symbols-outlined text-[14px]" aria-hidden="true">restaurant</span>
                         {loc.serviceType}
                       </span>
                       {loc.isVerified && (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border-2 border-black bg-white text-black text-xs font-bold uppercase tracking-tight">
-                          <span className="material-symbols-outlined text-[14px]">verified</span>
+                          <span className="material-symbols-outlined text-[14px]" aria-hidden="true">verified</span>
                           Verified
                         </span>
                       )}
@@ -226,7 +226,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
                             </span>
                           )}
                           <span className="text-sm font-bold text-black flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[14px]">schedule</span>
+                            <span className="material-symbols-outlined text-[14px]" aria-hidden="true">schedule</span>
                             {loc.operatingHours || 'Not specified'}
                           </span>
                         </div>
@@ -254,7 +254,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
                           </span>
                           {loc.contactPhone && (
                             <a href={`tel:${loc.contactPhone}`} className="text-sm text-black underline font-black flex items-center gap-1">
-                              <span className="material-symbols-outlined text-[14px]">call</span>
+                              <span className="material-symbols-outlined text-[14px]" aria-hidden="true">call</span>
                               {loc.contactPhone}
                             </a>
                           )}
@@ -316,7 +316,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
         title="Find my location"
         aria-label={isLocating ? "Locating..." : "Locate Me"}
       >
-        <span className={`material-symbols-outlined ${isLocating ? 'animate-spin' : ''}`}>
+        <span className={`material-symbols-outlined ${isLocating ? 'animate-spin' : ''}`} aria-hidden="true">
           {isLocating ? 'progress_activity' : 'my_location'}
         </span>
       </button>
