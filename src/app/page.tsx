@@ -155,7 +155,7 @@ export default function Home() {
               className="p-2 hover:bg-surface-container rounded-full transition-colors"
               aria-label="Close form"
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
             </button>
           </div>
 
@@ -167,12 +167,16 @@ export default function Home() {
               </div>
             )}
             <div>
-              <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Chabeel Name</label>
+              <div className="flex justify-between items-end mb-1.5">
+                <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider">Chabeel Name</label>
+                <span className="text-xs font-bold text-black/40">{formData.name.length}/100</span>
+              </div>
               <input
                 id="chabeel-name"
                 required
                 autoFocus
                 type="text"
+                maxLength={100}
                 placeholder="e.g. Gurudwara Sector 34"
                 className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-400 font-bold"
                 value={formData.name}
@@ -182,7 +186,7 @@ export default function Home() {
 
             <div className="bg-gray-50 p-3 rounded-lg border-2 border-black border-dashed">
               <label className="block text-xs uppercase font-black text-black mb-1">Detected Address</label>
-              <p className="text-sm text-black font-bold leading-tight">
+              <p className="text-sm text-black font-bold leading-tight" aria-live="polite">
                 {formData.locationName || 'Pinpoint location on map'}
               </p>
             </div>
@@ -271,9 +275,13 @@ export default function Home() {
             </div>
 
             <div>
-              <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Notes</label>
+              <div className="flex justify-between items-end mb-1.5">
+                <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider">Notes</label>
+                <span className="text-xs font-bold text-black/40">{(formData.description || '').length}/1000</span>
+              </div>
               <textarea
                 id="chabeel-desc"
+                maxLength={1000}
                 placeholder="Any specifics?"
                 className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-400"
                 value={formData.description}
