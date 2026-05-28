@@ -129,7 +129,7 @@ export default function Home() {
             <span className="text-xs font-black text-black tracking-tight">Chabeel Finder</span>
             <div className="w-[2px] h-3 bg-black"></div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-black animate-pulse" aria-hidden="true"></span>
               <span className="text-xs font-black text-black uppercase tracking-tighter">Crowd Sourced</span>
             </div>
             <div className="w-[2px] h-3 bg-black"></div>
@@ -155,7 +155,7 @@ export default function Home() {
               className="p-2 hover:bg-surface-container rounded-full transition-colors"
               aria-label="Close form"
             >
-              <span className="material-symbols-outlined">close</span>
+              <span className="material-symbols-outlined" aria-hidden="true">close</span>
             </button>
           </div>
 
@@ -167,12 +167,18 @@ export default function Home() {
               </div>
             )}
             <div>
-              <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Chabeel Name</label>
+              <div className="flex justify-between items-end mb-1.5">
+                <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider">Chabeel Name</label>
+                <span className={`text-[10px] font-black uppercase ${formData.name.length >= 100 ? 'text-error' : 'text-gray-400'}`}>
+                  {formData.name.length}/100
+                </span>
+              </div>
               <input
                 id="chabeel-name"
                 required
                 autoFocus
                 type="text"
+                maxLength={100}
                 placeholder="e.g. Gurudwara Sector 34"
                 className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-400 font-bold"
                 value={formData.name}
@@ -180,7 +186,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="bg-gray-50 p-3 rounded-lg border-2 border-black border-dashed">
+            <div className="bg-gray-50 p-3 rounded-lg border-2 border-black border-dashed" aria-live="polite">
               <label className="block text-xs uppercase font-black text-black mb-1">Detected Address</label>
               <p className="text-sm text-black font-bold leading-tight">
                 {formData.locationName || 'Pinpoint location on map'}
@@ -222,6 +228,7 @@ export default function Home() {
                 <input
                   id="chabeel-hours"
                   type="text"
+                  maxLength={100}
                   placeholder="10AM - 5PM"
                   className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.operatingHours}
@@ -251,6 +258,7 @@ export default function Home() {
                 <input
                   id="chabeel-contact-name"
                   type="text"
+                  maxLength={100}
                   placeholder="Optional"
                   className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.contactName}
@@ -262,6 +270,7 @@ export default function Home() {
                 <input
                   id="chabeel-contact-phone"
                   type="tel"
+                  maxLength={20}
                   placeholder="Optional"
                   className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
                   value={formData.contactPhone}
@@ -271,9 +280,15 @@ export default function Home() {
             </div>
 
             <div>
-              <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Notes</label>
+              <div className="flex justify-between items-end mb-1.5">
+                <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider">Notes</label>
+                <span className={`text-[10px] font-black uppercase ${formData.description.length >= 1000 ? 'text-error' : 'text-gray-400'}`}>
+                  {formData.description.length}/1000
+                </span>
+              </div>
               <textarea
                 id="chabeel-desc"
+                maxLength={1000}
                 placeholder="Any specifics?"
                 className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-400"
                 value={formData.description}
