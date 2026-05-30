@@ -168,13 +168,16 @@ export default function Home() {
             )}
             <div>
               <div className="flex justify-between items-end mb-1.5">
-                <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider">Chabeel Name</label>
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{formData.name.length}/100</span>
+                <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider">
+                  Chabeel Name <span className="text-red-500">*</span>
+                </label>
+                <span id="name-counter" className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{formData.name.length}/100</span>
               </div>
               <input
                 id="chabeel-name"
                 required
                 autoFocus
+                aria-describedby="name-counter"
                 type="text"
                 maxLength={100}
                 placeholder="e.g. Gurudwara Sector 34"
@@ -193,7 +196,9 @@ export default function Home() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="chabeel-start-date" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Start Date</label>
+                <label htmlFor="chabeel-start-date" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">
+                  Start Date <span className="text-red-500">*</span>
+                </label>
                 <input
                   id="chabeel-start-date"
                   required
@@ -204,7 +209,9 @@ export default function Home() {
                 />
               </div>
               <div>
-                <label htmlFor="chabeel-duration" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">Duration</label>
+                <label htmlFor="chabeel-duration" className="block text-sm font-black text-black uppercase tracking-wider mb-1.5">
+                  Duration <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
                   <input
                     id="chabeel-duration"
@@ -280,10 +287,11 @@ export default function Home() {
             <div>
               <div className="flex justify-between items-end mb-1.5">
                 <label htmlFor="chabeel-desc" className="block text-sm font-black text-black uppercase tracking-wider">Notes</label>
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{formData.description.length}/1000</span>
+                <span id="desc-counter" className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">{formData.description.length}/1000</span>
               </div>
               <textarea
                 id="chabeel-desc"
+                aria-describedby="desc-counter"
                 maxLength={1000}
                 placeholder="Any specifics?"
                 className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-400"
@@ -312,7 +320,7 @@ export default function Home() {
                 onChange={(e) => setIsConfirmed(e.target.checked)}
               />
               <label htmlFor="confirm-details" className="text-sm text-black font-black leading-tight">
-                I confirm these details are real and accurate. This location will be public.
+                I confirm these details are real and accurate. This location will be public. <span className="text-red-500">*</span>
               </label>
             </div>
 
