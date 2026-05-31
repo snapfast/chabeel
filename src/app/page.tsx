@@ -13,6 +13,8 @@ export default function Home() {
   const [locations, setLocations] = useState<ChabeelLocation[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -72,8 +74,10 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setStatusMessage(null);
     if (!isConfirmed) {
-      alert('Please confirm that the details are real.');
+      setError('Please confirm that the details are real.');
       return;
     }
     await saveLocation();
@@ -81,6 +85,7 @@ export default function Home() {
 
   const saveLocation = async () => {
     setIsSaving(true);
+    setError(null);
     try {
       const res = await fetch('/api/locations', {
         method: 'POST',
@@ -88,7 +93,11 @@ export default function Home() {
         body: JSON.stringify(formData),
       });
       if (res.ok) {
-        setShowAddForm(false);
+        setStatusMessage('Chabeel added successfully!');
+        setTimeout(() => {
+          setShowAddForm(false);
+          setStatusMessage(null);
+        }, 2000);
         setIsConfirmed(false);
         setFormData({
           name: '',
@@ -105,10 +114,13 @@ export default function Home() {
           source: 'web'
         });
         fetchLocations();
+      } else {
+        const errorData = await res.json();
+        setError(errorData.error || 'Failed to save location. Please try again.');
       }
     } catch (error) {
       console.error('Failed to save location', error);
-      alert('Failed to save location. Please try again.');
+      setError('Failed to save location. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -122,6 +134,20 @@ export default function Home() {
           locations={filteredLocations}
           onMapClick={handleMapClick}
         />
+
+        {/* Global Status Message Toast */}
+        {statusMessage && (
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1002] pointer-events-none">
+            <div
+              className="bg-black text-white px-6 py-3 rounded-md border-2 border-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-3 animate-bounce"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="material-symbols-outlined text-green-400" aria-hidden="true">check_circle</span>
+              <span className="font-black uppercase tracking-wider">{statusMessage}</span>
+            </div>
+          </div>
+        )}
 
         {/* Branding Tile */}
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] pointer-events-none">
@@ -166,6 +192,17 @@ export default function Home() {
                 <p className="text-base font-black text-black">Saving Chabeel details...</p>
               </div>
             )}
+
+            {error && (
+              <div
+                className="bg-red-50 border-2 border-black p-3 rounded-md flex items-center gap-3 text-red-700"
+                role="alert"
+                aria-live="assertive"
+              >
+                <span className="material-symbols-outlined shrink-0" aria-hidden="true">error</span>
+                <p className="text-sm font-black uppercase leading-tight">{error}</p>
+              </div>
+            )}
             <div>
               <div className="flex justify-between items-end mb-1.5">
                 <label htmlFor="chabeel-name" className="block text-sm font-black text-black uppercase tracking-wider">Chabeel Name</label>
@@ -178,7 +215,7 @@ export default function Home() {
                 type="text"
                 maxLength={100}
                 placeholder="e.g. Gurudwara Sector 34"
-                className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-400 font-bold"
+                className="w-full p-3 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none transition-all placeholder:text-gray-500 font-bold"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
@@ -228,7 +265,7 @@ export default function Home() {
                   type="text"
                   maxLength={100}
                   placeholder="10AM - 5PM"
-                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-500"
                   value={formData.operatingHours}
                   onChange={(e) => setFormData({ ...formData, operatingHours: e.target.value })}
                 />
@@ -258,7 +295,7 @@ export default function Home() {
                   type="text"
                   maxLength={100}
                   placeholder="Optional"
-                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-500"
                   value={formData.contactName}
                   onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
                 />
@@ -270,7 +307,7 @@ export default function Home() {
                   type="tel"
                   maxLength={20}
                   placeholder="Optional"
-                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-400"
+                  className="w-full p-2.5 text-base border-2 border-black rounded-lg focus:ring-0 focus:border-black outline-none font-bold placeholder:text-gray-500"
                   value={formData.contactPhone}
                   onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                 />
@@ -286,7 +323,7 @@ export default function Home() {
                 id="chabeel-desc"
                 maxLength={1000}
                 placeholder="Any specifics?"
-                className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-400"
+                className="w-full p-3 text-base border-2 border-black rounded-lg h-24 focus:ring-0 focus:border-black outline-none transition-all font-bold placeholder:text-gray-500"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
