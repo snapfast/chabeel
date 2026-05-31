@@ -16,7 +16,7 @@ const DefaultIcon = L.icon({
 const ChabeelIcon = L.divIcon({
   className: 'custom-chabeel-icon',
   html: `<div class="relative flex items-end justify-center group w-[60px] h-[60px]">
-    <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;">location_on</span>
+    <span class="material-symbols-outlined text-error text-[60px] leading-none drop-shadow-md group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1; display: block;" aria-hidden="true">location_on</span>
   </div>`,
   iconSize: [60, 60],
   iconAnchor: [30, 60],
@@ -164,6 +164,7 @@ export default function Map({ locations, onMapClick }: MapProps) {
             key={loc.id}
             position={[loc.lat, loc.lng]}
             icon={ChabeelIcon}
+            title={loc.name}
             eventHandlers={{
               click: () => {
                 setCenter([loc.lat, loc.lng]);
